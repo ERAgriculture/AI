@@ -1,0 +1,326 @@
+---
+title: "Screening Agricultural Research Papers with AI"
+author: "Lolita Muller"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    number-sections: true
+    code-fold: true  
+editor: visual
+---
+
+# Screening Agricultural Research Papers with AI
+
+This vignette demonstrates how to automate the screening of agricultural research papers using GPT-based AI models. The goal is to efficiently classify and filter research papers based on predefined inclusion/exclusion criteria, reducing manual workload and ensuring consistency in the selection process.
+
+## Step 1: Load & Sample Bibliographic Data
+
+```{r,include=FALSE,echo=FALSE}
+
+library(ellmer)
+library(readr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(DT) 
+
+```
+
+
+```{r,message=FALSE}
+
+# Extract bibliography data
+Bib <- read_csv("~/acdc library/ACDC_abstracts.csv")
+
+set.seed(444)
+Bib <- Bib %>%
+  sample_n(100)
+
+
+```
+
+# Step 2: AI-Based Screening with ChatGPT
+
+To use this approach, you’ll need an OpenAI account and an API key for accessing GPT models. Once you have your API key, you can customize your prompt based on your specific screening criteria.
+
+Since API calls incur costs each time they are executed, the code is currently commented out (#) to prevent unnecessary charges. It’s recommended to run the extraction process only when needed, and once you are satisfied with the results, save the output DataFrame to avoid repeated API costs.
+
+```{r}
+
+
+# abstract_text<- Bib$`Abstract Note`
+# # Create a Chat Object
+# Sys.setenv(OPENAI_API_KEY = insert api key")
+# 
+# chat <- chat_openai(model = "gpt-4o")
+# 
+# type_include_paper <- type_object(
+#   "Assess whether the paper should be included based on the following strict inclusion criteria. Return one column per criterion, and a final decision column. If any criterion is not met, the paper is excluded. When uncertain, favor inclusion.",
+# 
+#   location_LA_CA = type_string(
+#     "Extract country names from the abstract. If no location is mentioned, return NA."
+#   ),
+# 
+#   field_study = type_string(
+#     "Determine whether the study is an **on-field experiment** (not a lab or greenhouse study). If the experiment was conducted on a farm or in natural field conditions, return 'Yes'. If it was conducted in a lab, greenhouse, or controlled environment, return 'No'."
+#   ),
+# 
+#   primary_data = type_string(
+#     "Check if the study uses **primary data** (original experimental data). If the study collects and analyzes new data, return 'Yes'. If it is a review, synthesis, or modeling study, return 'No'."
+#   ),
+# 
+#   study_type = type_string(
+#     "Determine whether the study is a review, synthesis, or modeling exercise. If it falls into any of these categories, return 'No'. If it is an experimental field study using primary data, return 'Yes'."
+#   ),
+# 
+#   focus_agriculture = type_string(
+#     "Check whether the study focuses on **agriculture**. If the study explicitly investigates agricultural practices, return 'Yes'. If it focuses on non-agricultural topics, return 'No'."
+#   ),
+# 
+#   target_crop_livestock = type_string(
+#     "Determine if the study focuses on **maize, coffee, beans, or cattle**. If any of these are one or more of those crops state 'Yes'. If the study focuses on other crops return 'No'."
+#   ),
+# 
+#   tested_practices = type_array(
+#     "Extract the **agricultural practices tested in the field** from the following predefined list:
+#     agroforestry, rotation, intercropping, green manure, crop residue management, mulch, water harvesting, organic fertilizer, biological pest control, selective pesticides, inorganic fertilizer optimization, improved varieties, locally adapted heirloom varieties, reduced tillage, supplemental irrigation.
+#     
+#     - Return the practices as a comma-separated list **without additional text**.
+#     - If no listed practices are tested, return 'No'.",
+#     items = type_string()
+#   )
+# )
+# 
+# 
+# # Process abstracts
+# abstracts_info <- lapply(abstract_text, function(abstract) {
+#   tryCatch({
+#     result <- chat$extract_data(abstract, type = type_include_paper)
+#     
+#     data.frame(
+#       location_LA_CA = result$location_LA_CA %||% NA,
+#       field_study = result$field_study %||% NA,
+#       primary_data = result$primary_data %||% NA,
+#       study_type = result$study_type %||% NA,
+#       focus_agriculture = result$focus_agriculture %||% NA,
+#       target_crop_livestock = result$target_crop_livestock %||% NA,
+#       tested_practices = ifelse(length(result$tested_practices) > 0, paste(result$tested_practices, collapse = ", "), NA)
+#     )
+#   }, error = function(e) {
+#     data.frame(
+#       location_LA_CA = NA, field_study = NA, primary_data = NA, study_type = NA,
+#       focus_agriculture = NA, target_crop_livestock = NA, tested_practices = NA
+#     )
+#   })
+# })
+# 
+# # Convert to DataFrame
+# abstracts_df <- bind_rows(abstracts_info)
+# 
+# # Merge extracted information with Bibliography data
+# ERA_processed <- cbind(Bib, abstracts_df)
+# 
+# ERA_processed <- ERA_processed[, c(setdiff(names(ERA_processed), "Status"), "Status")]
+# 
+# # Define list of Latin American and Central American (LAC/CAC) countries
+# library(dplyr)
+# 
+# # Define list of Latin American and Central American (LAC/CAC) countries
+# LAC_CAC_countries <- c("Mexico", "Belize", "Guatemala", "El Salvador", "Honduras", 
+#                         "Nicaragua", "Costa Rica", "Panama", "Colombia", "Venezuela", 
+#                         "Ecuador", "Peru", "Bolivia", "Paraguay", "Chile", "Argentina", 
+#                         "Uruguay", "Brazil")
+# 
+# # Ensure `is_LAC_CAC` is added before filtering
+# ERA_processed <- ERA_processed %>%
+#   mutate(
+#     is_LAC_CAC = ifelse(location_LA_CA %in% LAC_CAC_countries, "Yes", "No")
+#   )
+# 
+# # Define required columns
+# required_columns <- c("is_LAC_CAC", "field_study", "primary_data", "study_type", "focus_agriculture", "target_crop_livestock")
+# 
+# # Check if all required columns exist
+# missing_columns <- setdiff(required_columns, colnames(ERA_processed))
+# if (length(missing_columns) > 0) {
+#   stop(paste("Missing columns in ERA_processed:", paste(missing_columns, collapse = ", ")))
+# }
+# 
+# # Apply filtering logic
+# ERA_processed <- ERA_processed %>%
+#   mutate(
+#     failing_criteria = apply(select(., all_of(required_columns)) %>% as.data.frame(), 
+#                              1, function(row) paste(names(row)[row == "No"], collapse = ", ")),
+#     
+#     Status_AI = ifelse(failing_criteria == "", "Included", paste("Excluded - Issues:", failing_criteria))
+#   ) %>%
+#   
+#   # Remove temporary `failing_criteria` column
+#   select(-failing_criteria)
+# 
+# # Display final processed dataset
+# print(ERA_processed)
+# 
+# 
+# write.csv(ERA_processed, file = "ERA_screened_GPT.csv")
+
+```
+
+
+```{r}
+
+# Create a summary table
+criteria_table <- data.frame(
+  Criterion = c(
+    "Location (Latin America & Central America)",
+    "Field Study",
+    "Primary Data",
+    "Study Type",
+    "Focus on Agriculture",
+    "Target Crops/Livestock",
+    "Tested Agricultural Practices"
+  ),
+  
+  Description = c(
+    "Extract country names from the abstract. If the study is conducted in Latin America or Central America, return 'Yes'. Otherwise, return 'No'. If no location is mentioned, return 'NA'.",
+    
+    "Determine whether the study is an **on-field experiment** (not a lab or greenhouse study). If conducted on a farm or in natural field conditions, return 'Yes'. Otherwise, return 'No'.",
+    
+    "Check if the study collects **primary data** (original experimental data). If it does, return 'Yes'. If it is a review, synthesis, or modeling study, return 'No'.",
+    
+    "Determine whether the study is a **review, synthesis, or modeling exercise**. If it falls into any of these categories, return 'No'. If it is an experimental field study using primary data, return 'Yes'.",
+    
+    "Check whether the study focuses on **agriculture**. If it explicitly investigates agricultural practices, return 'Yes'. Otherwise, return 'No'.",
+    
+    "Determine if the study focuses on **maize, coffee, beans, or cattle**. If one or more of these are studied, return 'Yes'. If the study focuses on other crops or livestock, return 'No'.",
+    
+    "Extract the **agricultural practices tested in the field** from a predefined list (e.g., agroforestry, crop rotation, organic fertilizer). If no listed practices are tested, return 'No'."
+  )
+)
+
+# Display the table in Quarto with styling
+kable(criteria_table, format = "html", caption = "Summary of Prompts based on inclusion criteria") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+
+
+
+```{r,message=FALSE}
+
+#use the file's location
+ERA_screened_GPT <- read_csv("ERA_screened_GPT.csv")
+
+
+# Load data
+ERA_screened_GPT <- read_csv("ERA_screened_GPT.csv") %>%
+  select(`Abstract Note`, location_LA_CA, field_study, primary_data, study_type,
+         focus_agriculture, target_crop_livestock, tested_practices, is_LAC_CAC, Status, Status_AI)
+
+# Truncate abstracts and add expand/collapse option
+ERA_screened_GPT <- ERA_screened_GPT %>%
+  mutate(`Abstract Note` = paste0(
+    "<details><summary>Click to expand</summary><p>",
+    `Abstract Note`, "</p></details>"
+  ))
+
+# Create paginated table with expandable abstracts
+datatable(
+  ERA_screened_GPT, 
+  escape = FALSE,  # Allow HTML in Abstract column
+  rownames = FALSE, 
+  options = list(
+    pageLength = 5,  # Display 5 rows per page
+    lengthMenu = c(5, 10, 25, 50),  # Allow changing number of rows per page
+    autoWidth = TRUE
+  )
+)
+
+```
+## Accuracy
+
+```{r,message=FALSE}
+
+ERA_screened_GPT <- ERA_screened_GPT %>%
+  mutate(
+    Screening_Comparison = case_when(
+      grepl("Extracted|Included", Status) & grepl("Included", Status_AI) ~ "Match - Included",
+      grepl("Rejected", Status) & grepl("Excluded", Status_AI) ~ "Match - Rejected",
+      grepl("Rejected", Status) & grepl("Included", Status_AI) ~ "False Inclusion (GPT Error)",
+      grepl("Extracted|Included", Status) & grepl("Excluded", Status_AI) ~ "False Exclusion (GPT Error)",
+      TRUE ~ "Other"
+    )
+  )
+
+# Count occurrences
+summary_table <- ERA_screened_GPT %>%
+  count(Screening_Comparison)
+
+# Compute total accuracy
+total_cases <- nrow(ERA_screened_GPT)
+correct_predictions <- sum(summary_table$n[summary_table$Screening_Comparison %in% c("Match - Included", "Match - Rejected")])
+accuracy <- round((correct_predictions / total_cases) * 100, 2)
+
+# Display summary table
+kable(summary_table, format = "html", caption = paste("GPT Screening Accuracy:", accuracy, "%")) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+Note: Some of the false exclusions identified by GPT are actually correct. During the ACDC extraction process, we unintentionally included some papers from Africa, even though they should have been excluded based on the criteria. In these cases, GPT correctly excluded the papers based on location, while our original extraction mistakenly retained them.
+
+
+## Cost analysis 
+
+```{r}
+# Define given cost and processing parameters
+total_cost <- 3.35    # Total cost for processing 100 abstracts
+num_abstracts <- 100  # Number of abstracts processed
+num_requests <- 7     # Requests per abstract
+
+# Compute cost per abstract and cost per request
+cost_per_abstract <- total_cost / num_abstracts
+cost_per_request <- total_cost / (num_abstracts * num_requests)
+
+# Define cost estimates for different dataset sizes
+abstract_sizes <- c(100, 500, 1000, 5000, 10000, 50000, 100000)
+abstract_sizes<-as.numeric(abstract_sizes)
+
+
+cost_estimates <- data.frame(
+  "Number of Abstracts" = abstract_sizes,
+  "Total Requests" = abstract_sizes * num_requests,
+  "Estimated Cost ($USD)" = round(abstract_sizes * cost_per_abstract, 2)
+)
+
+# Create summary table
+cost_summary <- data.frame(
+  Metric = c(
+    "Total Cost for 100 Abstracts",
+    "Total Requests Made",
+    "Cost per Abstract (All 7 Requests)",
+    "Cost per GPT Request"
+  ),
+  Value = c(
+    paste0("$", round(total_cost, 2)),
+    format(num_abstracts * num_requests, big.mark = ","),
+    paste0("$", round(cost_per_abstract, 4)),
+    paste0("$", round(cost_per_request, 5))
+  )
+)
+
+# Display cost summary
+kable(cost_summary, format = "html", caption = "GPT Processing Cost Summary") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+# Display cost estimates for different dataset sizes
+kable(cost_estimates, format = "html", caption = "Estimated Costs for Different Dataset Sizes") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
+
+
+
+```
+
+
