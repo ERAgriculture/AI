@@ -9,7 +9,7 @@ format:
     toc-location: left
     number-sections: true
     code-fold: true  
-editor: visual
+# editor: visual
 self_contained: true
 ---
 
@@ -30,11 +30,10 @@ library(DT)
 
 ```
 
-
 ```{r,message=FALSE}
 
 # Extract bibliography data
-Bib <- read_csv("~/acdc library/ACDC_abstracts.csv")
+Bib <- read_csv("ACDC_abstracts.csv")
 
 set.seed(444)
 Bib <- Bib %>%
@@ -170,7 +169,6 @@ Since API calls incur costs each time they are executed, the code is currently c
 
 ```
 
-
 ```{r}
 
 # Create a summary table
@@ -208,8 +206,6 @@ kable(criteria_table, format = "html", caption = "Summary of Prompts based on in
 
 ```
 
-
-
 ```{r,message=FALSE}
 
 #use the file's location
@@ -241,6 +237,7 @@ datatable(
 )
 
 ```
+
 ## Accuracy
 
 ```{r,message=FALSE}
@@ -265,15 +262,62 @@ total_cases <- nrow(ERA_screened_GPT)
 correct_predictions <- sum(summary_table$n[summary_table$Screening_Comparison %in% c("Match - Included", "Match - Rejected")])
 accuracy <- round((correct_predictions / total_cases) * 100, 2)
 
+total_include_n <- nrow(subset(ERA_screened_GPT, Status %in% c("Extracted", "Included")))
+total_exclude_n <- nrow(subset(ERA_screened_GPT, !Status %in% c("Extracted", "Included")))
+tp <- summary_table[[3, "n"]]
+tn <- summary_table[[4, "n"]]
+fp <- summary_table[[2, "n"]]
+fn <- summary_table[[1, "n"]]
+accuracy_include <- tp / total_include_n
+accuracy_exclude <- tn / total_exclude_n
+balanced_accuracy <- (accuracy_include + accuracy_exclude) / 2
+f1_score <- tp / (tp + (0.5 * (fp + fn)))
+sensitivity <- tp / (tp + fn)
+specificity <- tn / (tn + fp)
+
+accuracy_df <- data.frame(
+  Metric = c(
+    "Num. Abstracts",
+    "Num. Include Abstracts",
+    "Num. Exclude Abstracts",
+    "Accuracy",
+    "Inclusion Accuracy",
+    "Exclusion Accuracy",
+    "Balanced Accuracy",
+    "F1 Score",
+    "Sensitivity",
+    "Specificity"
+  ),
+  Value = c(
+    total_cases,
+    total_include_n,
+    total_exclude_n,
+    accuracy,
+    (accuracy_include * 100),
+    (accuracy_exclude * 100),
+    (balanced_accuracy * 100), 
+    f1_score,
+    sensitivity, # this would be most important if care about papers being excluded on accident
+    specificity
+  )
+)
+
 # Display summary table
 kable(summary_table, format = "html", caption = paste("GPT Screening Accuracy:", accuracy, "%")) %>%
   kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
 
 ```
+
+```{r}
+kable(accuracy_df, format = "html", caption = "GPT Screening Accuracy Details") |> 
+   kable_styling(full_width = FALSE, 
+    bootstrap_options = c("striped", "hover", "condensed")
+   )
+```
+
 Note: Some of the false exclusions identified by GPT are actually correct. During the ACDC extraction process, we unintentionally included some papers from Africa, even though they should have been excluded based on the criteria. In these cases, GPT correctly excluded the papers based on location, while our original extraction mistakenly retained them.
 
-
-## Cost analysis 
+## Cost analysis
 
 ```{r}
 # Define given cost and processing parameters
@@ -323,5 +367,3 @@ kable(cost_estimates, format = "html", caption = "Estimated Costs for Different 
 
 
 ```
-
-
