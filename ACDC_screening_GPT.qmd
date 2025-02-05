@@ -302,6 +302,7 @@ accuracy_df <- data.frame(
   )
 )
 
+
 # Display summary table
 kable(summary_table, format = "html", caption = paste("GPT Screening Accuracy:", accuracy, "%")) %>%
   kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
@@ -309,7 +310,7 @@ kable(summary_table, format = "html", caption = paste("GPT Screening Accuracy:",
 ```
 
 ```{r}
-kable(accuracy_df, format = "html", caption = "GPT Screening Accuracy Details") |> 
+kable(accuracy_df, format = "html",digits=2, caption = "GPT Screening Accuracy Details") |> 
    kable_styling(full_width = FALSE, 
     bootstrap_options = c("striped", "hover", "condensed")
    )
