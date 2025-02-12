@@ -2,43 +2,26 @@
 # 0) Set up workspace ####
 # 0.1) Load packages #####
 # Load necessary packages
-pacman::p_load(data.table, openalexR)
+# 0.1) Load packages #####
+pacman::p_load(data.table,openalexR)
 
-# Function to chunk search terms within 2000-character API limit
-split_terms <- function(term_list, max_length = 2000) {
-  chunks <- list()
-  chunk <- c()
-  length_so_far <- 0
-  
-  for (term in term_list) {
-    new_length <- length_so_far + nchar(term) + 4  # Adding 4 for " OR "
-    if (new_length > max_length) {
-      chunks <- append(chunks, list(paste0("(", paste(chunk, collapse = " OR "), ")")))
-      chunk <- c(term)
-      length_so_far <- nchar(term)
-    } else {
-      chunk <- append(chunk, term)
-      length_so_far <- new_length
-    }
-  }
-  
-  # Add the final chunk
-  if (length(chunk) > 0) {
-    chunks <- append(chunks, list(paste0("(", paste(chunk, collapse = " OR "), ")")))
-  }
-  
-  return(chunks)
-}
-
-# Function to add quotes to multi-word phrases
+# 0.2) Create functions #####
 add_quotes <- function(vector) {
   sapply(vector, function(term) {
     if (grepl("\\s", term)) {
-      return(paste0('"', term, '"'))  # Wrap in double quotes
+      return(shQuote(term, type = "cmd"))
     } else {
       return(term)
     }
   }, USE.NAMES = FALSE)
+}
+
+# Define the path for saving CSV files
+search_data_dir <- "doc"
+
+# Create the directory if it does not exist
+if (!dir.exists(search_data_dir)) {
+  dir.create(search_data_dir, recursive = TRUE)
 }
 
 # 1) Create terms ####
@@ -118,122 +101,66 @@ Countries_Americas <- c(
   "Haiti", "Honduras", "Jamaica", "Mexico", "Nicaragua", "Paraguay", "Peru",
   "Saint Lucia", "Saint Vincent and the Grenadines", "Suriname", "Venezuela")
 
+# Convert to Boolean expressions
+convert_to_boolean <- function(term_list) {
+  paste0("(", paste(shQuote(term_list, type = "cmd"), collapse = " OR "), ")")
+}
 
-Productivity_Economics_boolean <- paste0("(", paste(Productivity_Economics, collapse = " OR "), ")")
-Resilience_1_boolean <- paste0("(", paste(Resilience_1, collapse = " OR "), ")")
-Resilience_2_boolean <- paste0("(", paste(Resilience_2, collapse = " OR "), ")")
-Agroforestry_boolean <- paste0("(", paste(Agroforestry, collapse = " OR "), ")")
-Products_boolean <- paste0("(", paste(Products, collapse = " OR "), ")")
-Livestock_boolean <- paste0("(", paste(Livestock, collapse = " OR "), ")")
-Countries_Americas_boolean <- paste0("(", paste(Countries_Americas, collapse = " OR "), ")")
-
-# Step 3: Chunk the Boolean expressions (to fit API limit)
-Productivity_Economics_chunks <- split_terms(Productivity_Economics_boolean)
-Resilience_1_chunks <- split_terms(Resilience_1_boolean)
-Resilience_2_chunks <- split_terms(Resilience_2_boolean)
-Agroforestry_chunks <- split_terms(Agroforestry_boolean)
-Products_chunks <- split_terms(Products_boolean)
-Livestock_chunks <- split_terms(Livestock_boolean)
-Countries_Americas_chunks <- split_terms(Countries_Americas_boolean)
-
-# Save terms for reference
-terms <- list(
-  productivity_economics = Productivity_Economics_chunks,
-  resilience_1 = Resilience_1_chunks,
-  resilience_2 = Resilience_2_chunks,
-  agroforestry = Agroforestry_chunks,
-  products = Products_chunks,
-  livestock = Livestock_chunks,
-  countries = Countries_Americas_chunks
-)
-
-
-save(terms, file = "search_terms.RData")
+Productivity_Economics_boolean <- convert_to_boolean(Productivity_Economics)
+Resilience_1_boolean <- convert_to_boolean(Resilience_1)
+Resilience_2_boolean <- convert_to_boolean(Resilience_2)
+Agroforestry_boolean <- convert_to_boolean(Agroforestry)
+Products_boolean <- convert_to_boolean(Products)
+Livestock_boolean <- convert_to_boolean(Livestock)
+Countries_Americas_boolean <- convert_to_boolean(Countries_Americas)
 
 # Define search timeframe
 from_year <- "1970-01-01"
 to_year <- "2024-10-30"
 
-# Initialize empty dataframe for storing results
-final_results <- data.table()
+# Ensure doc directory exists
+dir.create("doc", showWarnings = FALSE)
 
-# Iterate over chunks and query OpenAlex
-for (prod in Productivity_Economics_chunks) {
-  for (res1 in Resilience_1_chunks) {
-    for (res2 in Resilience_2_chunks) {
-      for (agro in Agroforestry_chunks) {
-        for (prod_item in Products_chunks) {
-          for (livestock_item in Livestock_chunks) {
-            for (country in Countries_Americas_chunks) {
-              
-              search_query <- paste(
-                paste(prod, collapse = " OR "), "OR",
-                paste(res1, collapse = " OR "), "OR",
-                paste(res2, collapse = " OR "), "OR",
-                paste(agro, collapse = " OR "), "OR",
-                paste(prod_item, collapse = " OR "), "OR",
-                paste(livestock_item, collapse = " OR "), "OR",
-                paste(country, collapse = " OR ")
-              )
-              
-              # Check if query length exceeds OpenAlex limit
-              if (nchar(search_query) > 2000) {
-                cat("Skipping query due to length:", nchar(search_query), "characters\n")
-                next
-              }
-              
-              cat("Running query:", search_query, "\n")
-              
-              api_endpoint <- oa_query(
-                entity = "works",
-                title_and_abstract.search = search_query,
-                from_publication_date = from_year,
-                to_publication_date = to_year
-              )
-              
-              hits <- oa_request(query_url = api_endpoint)
-              hits_tab <- data.table(oa2df(hits, entity = "works"))
-              
-              # Convert list-type columns to character before merging
-              for (col in names(hits_tab)) {
-                if (is.list(hits_tab[[col]])) {
-                  hits_tab[[col]] <- sapply(hits_tab[[col]], function(x) paste(unlist(x), collapse = "; "))
-                }
-              }
-              
-              # Append results and remove duplicates
-              final_results <- unique(rbind(final_results, hits_tab, fill = TRUE), by = "doi")
-            }
-          }
-        }
-      }
+# Function to run OpenAlex queries and save results for **each category in ONE query**
+run_query <- function(category, boolean_query) {
+  cat("🔍 Running query for:", category, "...\n")
+  
+  api_endpoint <- oa_query(
+    entity = "works",
+    title_and_abstract.search = boolean_query,
+    from_publication_date = from_year,
+    to_publication_date = to_year
+  )
+  
+  hits <- oa_request(query_url = api_endpoint)
+  hits_tab <- data.table(oa2df(hits, entity = "works"))
+  
+  # Convert list-type columns to character before saving
+  for (col in names(hits_tab)) {
+    if (is.list(hits_tab[[col]])) {
+      hits_tab[[col]] <- sapply(hits_tab[[col]], function(x) paste(unlist(x), collapse = "; "))
     }
   }
+  
+  # Save category-wise result in doc folder
+  fwrite(hits_tab, paste0("doc/openalex_results_", category, ".csv"))
 }
 
-# Save final deduplicated results
-fwrite(final_results, "openalex_results_final.csv")
+# Run queries separately for each category (One API call per category)
+run_query("Productivity_Economics", Productivity_Economics_boolean)
+run_query("Resilience_1", Resilience_1_boolean)
+run_query("Resilience_2", Resilience_2_boolean)
+run_query("Agroforestry", Agroforestry_boolean)
+run_query("Products", Products_boolean)
+run_query("Livestock", Livestock_boolean)
+run_query("Countries_Americas", Countries_Americas_boolean)
 
-cat("All searches completed, duplicates removed, and results saved.\n")
-########################test
-query_test4 <- oa_query(
-  entity = "works",
-  title_and_abstract.search = paste(
-    paste(Productivity_Economics_chunks, collapse = " OR "),
-    "OR",
-    paste(Resilience_1_chunks, collapse = " OR ")
-  ),
-  from_publication_date = "2000-01-01",
-  to_publication_date = "2024-01-01"
-)
+# Combine all CSV results and remove duplicates
+all_files <- list.files("doc", pattern = "openalex_results_.*\\.csv", full.names = TRUE)
+all_data <- rbindlist(lapply(all_files, fread), fill = TRUE)
+final_results <- unique(all_data, by = "doi")
 
-test_hits4 <- oa_request(query_url = query_test4)
-test_hits4_df <- data.table(oa2df(test_hits4, entity = "works"))
-
-# Print results
-print(test_hits4_df)
-
-
-
+# Save final deduplicated results in doc folder
+fwrite(final_results, "doc/openalex_results_final.csv")
 
 cat("✅ All searches completed, duplicates removed, and results saved.\n")
