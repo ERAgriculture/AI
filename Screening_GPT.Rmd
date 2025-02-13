@@ -1,17 +1,15 @@
----
 title: "Screening Agricultural Research Papers with AI"
 author: "Lolita Muller"
 date: "`r Sys.Date()`"
-format:
-  html:
+output:
+  html_document:
     toc: true
-    toc-depth: 2
-    toc-location: left
-    number-sections: true
-    code-fold: true  
-editor: visual
-self_contained: true
----
+    toc_float: true
+    code_folding: hide
+    includes:
+    self_contained: true
+comments:
+  utterances:
 
 # Screening Agricultural Research Papers with AI
 
