@@ -11,12 +11,7 @@ This repository contains AI-driven scripts designed to **automate meta-analysis 
 ✅ **Performance Evaluation** – Compare AI tagging with manual results  
 
 
-## 📊 View Reports
 
-You can access AI-generated reports using the links below:
-
-- 📥 **Download AI Efficiency Report**: [Click Here](outputs/report.html)
-- 🌐 **View AI Efficiency Report Online**: [Click Here](https://Mlolita26.github.io/ERAgriculture/AI/blob/main/docs/GPT_tagging.html)
 
 
 
