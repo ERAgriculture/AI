@@ -1,0 +1,662 @@
+---
+title: "Tagging Agricultural Research Papers with AI"
+author: "Lolita Muller"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    number-sections: true
+    code-fold: true  
+editor: visual
+self_contained: true
+---
+
+# Tagging agreocological research papers with AI
+
+## Introduction 
+
+
+### Background
+Tagging agricultural research papers manually is a time-intensive and costly process. Researchers and policymakers require structured metadata—such as **location, crops, practices, and outcomes**—to analyze scientific trends. However, manually extracting this information from abstracts is laborious,and can be inconsistent.
+
+### Objective
+This study evaluates the efficiency of **ChatGPT for automated metadata extraction** from research abstracts. The AI-generated results are compared against manually curated data to assess:
+1. **Accuracy:** How often AI-generated tags match human-tagged results.
+2. **Error Patterns:** The types of mistakes AI makes (e.g., missing data, misclassification).
+3. **Time & Cost Efficiency:** The cost and time savings of AI-assisted tagging compared to manual extraction.
+
+### Methodology
+- **Dataset:** Research papers related to agricultural resilience from the ERA database.
+- **Variables Extracted:** Country, crops, practices, and outcomes.
+- **Evaluation Metrics:**
+  - **Accuracy:** Comparison of AI-generated tags against manually verified data.
+  - **Error Analysis:** Categorizing AI mistakes as *minor (format issues)* or *major (wrong/missing data)*.
+  - **Efficiency Assessment:** Measuring time and cost differences between AI-assisted and manual tagging.
+
+
+
+## Set up 
+### Load packages
+
+```{r,message=FALSE,warning=FALSE}
+
+library(ellmer)
+library(readr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(ERAg)
+library(ggplot2)
+library(patchwork)
+
+```
+
+### Load bibliography
+
+We need to load the data as well as the bibliography infromation and merge them together. 
+
+```{r,message=FALSE}
+
+
+#extracted data from full text extraction
+ERA<-ERA.Compiled
+
+#bibliography
+Bib<-ERA_Bibliography
+Bib<-Bib%>%
+  select(ABSTRACT,ERACODE)
+
+ERA<-ERA%>%
+  select(Code,Product,Country,Out.Pillar,Out.SubPillar,Out.Ind,Out.SubInd,PrName)
+
+#nerge de two datasets
+ERA <- merge(ERA, Bib, by.x = "Code", by.y = "ERACODE", all = TRUE)
+
+#every row is one study and the variables are in a comma separated list
+ERA <- ERA %>%
+  group_by(Code) %>%
+  summarise(across(everything(), ~ toString(unique(.))))%>%
+  filter(Out.Pillar=="Resilience")
+
+
+```
+
+
+## Tag with chat gpt 
+
+To use this approach, you’ll need an OpenAI account and an API key for accessing GPT models. Once you have your API key, you can customize your prompt based on your specific screening criteria.
+
+Since API calls incur costs each time they are executed, the code is currently commented out (#) to prevent unnecessary charges. It’s recommended to run the extraction process only when needed, and once you are satisfied with the results, save the output DataFrame to avoid repeated API costs.
+
+### Set up chatgpt model and APi key
+
+```{r}
+
+Sys.setenv(OPENAI_API_KEY = "your_openAI_key")
+
+#we found that gpt4o mini is the most cost effective model
+chat <- chat_openai(model = "gpt-4o-mini")
+
+```
+
+
+### Extract abstracts and set up prompts. 
+
+
+We will incorporate the abstracts into our prompts, as ChatGPT will be extracting specific information directly from the scientific abstracts. Each prompt is structured to include the abstract alongside a targeted instruction designed to extract a particular type of information.
+
+```{r}
+
+# abstract_text<- ERA$ABSTRACT
+# # Create a Chat Object
+# 
+# 
+# prompts <- type_object(
+#   location_AI = type_string(
+#     "Extract the country name in which the experiment was done. If no country is mentioned, return NA."
+#   ),
+# crops_AI = type_string(
+#     "Extract the crops or animals that are studied in this experiment, provide them as a comma separated list.If no crop is mentionned return NA. Do not mentionned the crops used as residues but only the growing crops"
+#   ),
+# 
+#   practices_AI = type_string(
+#     "Extract the agricultural practices tested and compared in the experiment. Provide them as a comma separated list.Examples include storage, inorganic fertilizer, organic fertilizers, erosion, soil moisture, soil organic content, total nitrogen and others."
+#   ),
+# 
+#   outcomes_AI = type_string(
+#     "Determine what variables are measured during the experiment. Provide them as a comma separated list. Some include soil moisture,soil organic carbon,erosion, soil total nitrogen, water use efficiency etc.Do not include climatic variable only agriculture or soil variables. ")
+#   )
+# 
+# 
+# # Process Abstracts
+# abstracts_info <- lapply(abstract_text, function(abstract) {
+#   tryCatch({
+#     result <- chat$extract_data(abstract, type = prompts)
+# 
+#     data.frame(
+#       location_AI = result$location_AI %||% NA,
+#       crops_AI = result$crops_AI %||% NA,
+#       practices_AI = result$practices_AI %||% NA,
+#       outcomes_AI = result$outcomes_AI %||% NA
+#     )
+#   }, error = function(e) {
+#     data.frame(
+#       location_AI = NA,
+#       crops_AI = NA,
+#       practices_AI = NA,
+#       outcomes_AI = NA
+#     )
+#   })
+# })
+# 
+# # Convert to DataFrame
+# abstracts_df <- bind_rows(abstracts_info)
+# 
+# # Merge extracted information with ERA data
+# ERA_processed <- cbind(ERA, abstracts_df)
+
+
+#write.csv(ERA_processed, file = "ERA_ACDCtag.csv")
+
+```
+
+
+### Harmonizaton of answers
+
+For variables like outcomes and practices, the extracted terms may vary across abstracts while still being accurate. The model might successfully capture the relevant information, but differences in terminology can make comparison challenging. To streamline our analysis, we will harmonize these variables using a predefined list of standardized terms. ChatGPT will then categorize its previous responses into these standardized categories, ensuring consistency across the dataset.
+
+#### Harmonization of practices
+
+```{r}
+
+# practices<- ERA_processed$practices_AI
+# # Create a Chat Object
+# Sys.setenv(OPENAI_API_KEY = "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")
+# 
+# chat <- chat_openai(model = "gpt-4o-mini")
+# 
+# type_harm_paper <- type_object(
+#   practice_harm_AI = type_string(
+#     "Harmonize agricultural practices mentioned in the text into the following predefined categories: Inorganic Fertilizers, Organic Fertilizers, Crop Rotation, Intercropping, Reduced Tillage, Agroforestry, Mulch, Crop Residue, Biochar, Deficit Irrigation, Storage, Water Harvesting, pH Control, Feed Addition, Supplemental Irrigation, Pasture Management, Cookstove, and Genetic Improvement.
+# If a practice falls under one of these categories, standardize it using the exact category name.
+# If multiple terms in the text belong to the same category, list that category only once.
+# Return only the harmonized category names as a comma-separated list, with no additional text or explanations.
+# For example:
+# If the text includes 'application of nitrogen fertilizer' and 'use of urea,' return 'Inorganic Fertilizers' (not both separately).
+# If the text mentions 'intercropping, strip intercropping, mixed intercropping,' return 'Intercropping' (only once)."
+#   ))
+# 
+# 
+# # Process Abstracts
+# practice_info <- lapply(practices, function(abstract) {
+#   tryCatch({
+#     result <- chat$extract_data(abstract, type = type_harm_paper)
+# 
+#     data.frame(
+#       practice_harm_AI = result$practice_harm_AI %||% NA
+#     )
+#   }, error = function(e) {
+#     data.frame(
+#       practice_harm_AI = NA
+#     )
+#   })
+# })
+# 
+# # Convert to DataFrame
+# harm_df <- bind_rows(practice_info)
+# 
+# # Merge extracted information with ERA data
+# ERA_processed2 <- cbind(ERA_processed, harm_df)
+# 
+
+
+
+```
+
+
+#### Harmonization of outcomes
+
+```{r}
+
+# outcomes<- ERA_processed$outcomes_AI
+# # Create a Chat Object
+# Sys.setenv(OPENAI_API_KEY = "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")
+# 
+# chat <- chat_openai(model = "gpt-4o-mini")
+# 
+# type_harm_paper2 <- type_object(
+#   out_harm_AI = type_string(
+#     "Harmonize agricultural variable measured mentioned in the text into the following predefined variable names: Runoff, Pest & Pathogen (Losses), Pest & Pathogen (Numbers),Soil Moisture, Soil Total Nitrogen, Soil Organic Carbon, Cation Exchange Capacity,Soil Organic Matter,Infiltration Rate,Erosion,Soil Available Nitrogen,Water Use,Water Use Efficiency,Nitrogen Agronomic Efficiency,Beneficial Organisms,Soil NH4, Soil NO3,Biodiversity.
+# If a practice falls under one of these categories, standardize it using the exact category name.
+# If a variable doesnt fall under any of the harmonized names, remove it..
+# Return only the harmonized variable names as a comma-separated list, with no additional text or explanations.
+# For example:
+# If the text includes 'soil erodibility, runoff volume
+# ', return 'runoff' (remove soil erodibility).
+# If the text mentions 'total nitrogen, base saturation, exchange acidity, soil pH, electrical conductivity, organic carbon, plant height, number of leaves
+# ' return 'Soil Total Nitrogen, Soil Organic Carbon, Effective Cation Exchange Capacity
+# '"
+#   ))
+# 
+# 
+# # Process Abstracts
+# out_info <- lapply(outcomes, function(abstract) {
+#   tryCatch({
+#     result <- chat$extract_data(abstract, type = type_harm_paper2)
+# 
+#     data.frame(
+#       out_harm_AI = result$out_harm_AI %||% NA
+#     )
+#   }, error = function(e) {
+#     data.frame(
+#       out_harm_AI = NA
+#     )
+#   })
+# })
+# 
+# # Convert to DataFrame
+# harm_df2 <- bind_rows(out_info)
+# 
+# # Merge extracted information with ERA data
+# ERA_processed3 <- cbind(ERA_processed2, harm_df2)
+
+
+```
+
+
+## Summary of prompts 
+
+```{r}
+
+# Define the prompts for each variable
+prompts_table <- data.frame(
+  Variable = c("Location", "Product", "Practice", "Outcome", "Harmonized practice","harmonized Outcome"),
+  Description = c(
+    "Extract the country name in which the experiment was done. If no country is mentioned, return NA.",
+    "Extract the crops or animals that are studied in this experiment, provide them as a comma-separated list. If no crop is mentioned, return NA. Do not mention crops used as residues, only growing crops.",
+    "Extract the agricultural practices tested and compared in the experiment. Provide them as a comma-separated list. Examples include storage, inorganic fertilizer, organic fertilizers, erosion, soil moisture, soil organic content, total nitrogen, etc.",
+    "Determine what variables are measured during the experiment. Provide them as a comma-separated list. Examples include soil moisture, soil organic carbon, erosion, soil total nitrogen, water use efficiency, etc. Do not include climatic variables, only agriculture or soil variables.",
+    "Harmonize agricultural practices mentioned in the text into predefined categories: Inorganic Fertilizers, Organic Fertilizers, Crop Rotation, Intercropping, Reduced Tillage, Agroforestry, Mulch, Crop Residue, Biochar, Deficit Irrigation, Storage, Water Harvesting, pH Control, Feed Addition, Supplemental Irrigation, Pasture Management, Cookstove, and Genetic Improvement. If multiple terms belong to the same category, list that category only once.",
+    "Harmonize agricultural variable measured mentioned in the text into the following predefined variable names: Runoff, Pest & Pathogen (Losses), Pest & Pathogen (Numbers),Soil Moisture, Soil Total Nitrogen, Soil Organic Carbon, Cation Exchange Capacity,Soil Organic Matter,Infiltration Rate,Erosion,Soil Available Nitrogen,Water Use,Water Use Efficiency,Nitrogen Agronomic Efficiency,Beneficial Organisms,Soil NH4, Soil NO3,Biodiversity.
+If a practice falls under one of these categories, standardize it using the exact category name.
+If a variable doesnt fall under any of the harmonized names, remove it..
+Return only the harmonized variable names as a comma-separated list, with no additional text or explanations.
+For example:
+If the text includes 'soil erodibility, runoff volume
+', return 'runoff' (remove soil erodibility).
+If the text mentions 'total nitrogen, base saturation, exchange acidity, soil pH, electrical conductivity, organic carbon, plant height, number of leaves
+' return 'Soil Total Nitrogen, Soil Organic Carbon, Effective Cation Exchange Capacity
+'"
+  ))
+
+
+# Print the table using kable (for R Markdown)
+knitr::kable(prompts_table, caption = "Summary of ChatGPT Prompts and Expected Responses")
+
+```
+
+
+
+## Download of the data for manual tagging
+
+To evaluate the efficiency of ChatGPT in tagging, we will also perform the process manually. This will allow us to compare accuracy, cost, and time investment between AI-assisted and manual extraction methods.
+
+```{r}
+
+#write.csv(ERA_processed3, file = "ERA_TEST_YES.csv")
+
+```
+
+
+## Upload complete data after manual tagging
+
+```{r,message=FALSE,warning=FALSE}
+
+ERA_complete <- read_csv("ERA_TEST_YES (version 1).xlsb.csv")
+
+#select relevant columns for analysis 
+
+ERA_complete <- ERA_complete%>%
+  select(ABSTRACT,location_AI,country_manual,`country-result`,crops_AI,product_manual,product_result,practices_AI,practice_harm_AI,practice_result,practice_result_type,practice_harm_result,Practice_harm_result_type,outcomes_AI,out_harm_AI,outcome_manual,outcome_result,outcome_result_type,outcome_harm_result,outcome_harm_result_type)
+
+```
+
+
+### Variables
+
+This table combines data extracted by ChatGPT with manually extracted data. When the AI-extracted data matches the manually extracted data, the "Result" column will display "True"; otherwise, it will show "False".
+
+For more complex prompts, such as practices and outcomes, an additional "result type" column categorizes discrepancies:
+
+Minor errors indicate that the information is present but not in the expected format or with too much infromation but the needed information is in the answer.
+Major errors occur when key information is missing or the AI provides an incorrect response.
+
+
+## Efficiency analysis 
+
+### Analysis by variable
+
+```{r}
+
+# Assume dataset is named `ERA_processed2`
+data <- ERA_complete 
+
+# Function to calculate efficiency
+calculate_efficiency <- function(true_false_column) {
+  total <- nrow(data)
+  true_count <- sum(data[[true_false_column]] == "TRUE", na.rm = TRUE)
+  efficiency <- (true_count / total) * 100
+  return(efficiency)
+}
+
+
+
+```
+
+
+#### Country
+
+```{r}
+# Calculate location efficiency
+location_efficiency <- calculate_efficiency("country-result")
+
+# Print result
+cat(
+    "📍 Location Extraction Efficiency\n",
+
+    "✅ Accuracy:", round(location_efficiency, 2), "%\n\n",
+    sep = "")
+
+
+```
+
+#### Crops 
+
+```{r}
+
+# Calculate crops efficiency
+crops_efficiency <- calculate_efficiency("product_result")
+
+# Print result
+cat(
+    "🌿 Crops Extraction Efficiency\n",
+
+    "✅ Accuracy:", round(crops_efficiency, 2), "%\n\n",
+    sep = "")
+
+
+```
+
+#### Practices 
+##### Practices tagging
+
+```{r}
+# Calculate practices efficiency
+practices_efficiency <- calculate_efficiency("practice_result")
+
+# Count minor and major errors
+practice_minor_errors <- sum(data$practice_result_type == "minor", na.rm = TRUE)
+practice_major_errors <- sum(data$practice_result_type == "major", na.rm = TRUE)
+
+# Print results
+cat(
+    "🔧 Practices Extraction Efficiency\n",
+
+    "✅ Accuracy:", round(practices_efficiency, 2), "%\n",
+    "⚠️ Minor errors:", practice_minor_errors, " | ❌ Major errors:", practice_major_errors, "\n\n",
+    sep = "")
+
+```
+
+##### Harmonized practices
+
+```{r}
+
+# Calculate harmonized practices efficiency
+harmonized_practices_efficiency <- calculate_efficiency("practice_harm_result")
+
+# Count minor and major errors
+harm_practice_minor_errors <- sum(data$Practice_harm_result_type == "minor", na.rm = TRUE)
+harm_practice_major_errors <- sum(data$Practice_harm_result_type == "major", na.rm = TRUE)
+
+# Print results
+
+
+cat(
+    "🛠 Harmonized Practices Extraction Efficiency\n",
+
+    "✅ Accuracy:", round(harmonized_practices_efficiency, 2), "%\n",
+    "⚠️ Minor errors:", harm_practice_minor_errors, " | ❌ Major errors:", harm_practice_major_errors, "\n\n",
+    sep = "")
+
+
+```
+
+
+#### Outcomes
+
+##### Outcomes tagging
+
+```{r}
+
+# Calculate outcomes efficiency
+outcomes_efficiency <- calculate_efficiency("outcome_result")
+
+# Count minor and major errors
+outcome_minor_errors <- sum(data$outcome_result_type == "minor", na.rm = TRUE)
+outcome_major_errors <- sum(data$outcome_result_type == "major", na.rm = TRUE)
+
+# Print results
+
+cat(
+    "📊 Outcomes Extraction Efficiency\n",
+
+    "✅ Accuracy:", round(outcomes_efficiency, 2), "%\n",
+    "⚠️ Minor errors:", outcome_minor_errors, " | ❌ Major errors:", outcome_major_errors, "\n\n",
+    sep = "")
+
+
+
+```
+
+
+##### Outcomes harmonization
+
+
+```{r}
+
+# Calculate harmonized outcomes efficiency
+harmonized_outcomes_efficiency <- calculate_efficiency("outcome_harm_result")
+
+# Count minor and major errors
+harm_outcome_minor_errors <- sum(data$outcome_harm_result_type == "minor", na.rm = TRUE)
+harm_outcome_major_errors <- sum(data$outcome_harm_result_type == "major", na.rm = TRUE)
+
+
+cat(
+    "📈 Harmonized Outcomes Extraction Efficiency\n",
+
+    "✅ Accuracy:", round(harmonized_outcomes_efficiency, 2), "%\n",
+    "⚠️ Minor errors:", harm_outcome_minor_errors, " | ❌ Major errors:", harm_outcome_major_errors, "\n\n",
+    sep = "")
+
+
+
+```
+
+
+
+### Global Analysis 
+
+```{r}
+
+
+# Create efficiency summary table
+efficiency_summary <- data.frame(
+  Variable = c("Location", "Crops", "Practices", "Harmonized Practices", "Outcomes", "Harmonized Outcomes"),
+  Efficiency_Percentage = c(
+    location_efficiency, crops_efficiency, practices_efficiency, 
+    harmonized_practices_efficiency, outcomes_efficiency, harmonized_outcomes_efficiency
+  )
+)
+
+# Print formatted table
+efficiency_summary %>%
+  kable("html", caption = "Efficiency Summary of ChatGPT Tagging") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+
+
+
+```
+
+```{r}
+# Example efficiency data (replace with actual values)
+efficiency_data <- data.frame(
+  Variable = c("Location", "Crops", "Practices", "Harmonized Practices", "Outcomes", "Harmonized Outcomes"),
+  True_Percentage = c(location_efficiency, crops_efficiency, practices_efficiency, 
+                      harmonized_practices_efficiency, outcomes_efficiency, harmonized_outcomes_efficiency)
+)
+
+# Calculate False Percentage (100 - True_Percentage)
+efficiency_data$False_Percentage <- 100 - efficiency_data$True_Percentage
+
+create_donut_chart <- function(variable, true_value, false_value) {
+  # Prepare data
+  data <- tibble(
+    Category = c("Correct", "Incorrect"),
+    Percentage = c(true_value, false_value)
+  )
+
+  # Create a gauge-style donut chart
+  ggplot(data, aes(x = 2, y = Percentage, fill = Category)) +
+    geom_bar(stat = "identity", width = 0.3, color = "black") +  # Adjust width for thinner ring
+    coord_polar("y", start = 0) +
+    theme_void() +
+    scale_fill_manual(values = c("Correct" = "steelblue", "Incorrect" = "darkred")) +
+    ggtitle(paste("Accuracy for", variable)) +
+    theme(
+      plot.title = element_text(hjust = 0.5, face = "bold",size=22),
+      legend.title = element_blank()
+    ) +
+    xlim(1, 3)  # Adjust x-axis to create the hollow effect
+}
+
+
+```
+
+
+
+```{r,fig.width=15, fig.height=15, results="hold"}
+donut_location <- create_donut_chart("Location", efficiency_data$True_Percentage[1], efficiency_data$False_Percentage[1])
+donut_crops <- create_donut_chart("Crops", efficiency_data$True_Percentage[2], efficiency_data$False_Percentage[2])
+donut_practices <- create_donut_chart("Practices", efficiency_data$True_Percentage[3], efficiency_data$False_Percentage[3])
+donut_harmonized_practices <- create_donut_chart("Harmonized Practices", efficiency_data$True_Percentage[4], efficiency_data$False_Percentage[4])
+donut_outcomes <- create_donut_chart("Outcomes", efficiency_data$True_Percentage[5], efficiency_data$False_Percentage[5])
+donut_harmonized_outcomes <- create_donut_chart("Harmonized Outcomes", efficiency_data$True_Percentage[6], efficiency_data$False_Percentage[6])
+
+# Display all plots (Run each individually or use a grid layout)
+
+panel_plot <- donut_location+ donut_crops+ donut_practices+donut_harmonized_practices+donut_outcomes+donut_harmonized_outcomes + 
+  plot_layout(ncol = 2, guides = "collect")  # Arrange in 2 columns, share legend
+
+# Display the panel
+panel_plot
+
+```
+
+```{r}
+# Calculate mean efficiency across all categories
+global_true <- mean(efficiency_data$True_Percentage)
+global_false <- 100 - global_true
+
+# Create a summary donut chart
+global_donut <- create_donut_chart("Overall Accuracy", global_true, global_false)
+global_donut
+
+```
+
+```{r,results='asis'}
+
+mean_efficiency <- mean(c(location_efficiency, crops_efficiency, practices_efficiency, outcomes_efficiency), na.rm = TRUE)
+
+cat("**Mean efficiency across country, crops, practices, and outcomes:**", round(mean_efficiency, 2), "%**\n")
+
+
+```
+
+
+### Time comparison
+
+```{r,results='hold'}
+# Given data
+chatgpt_cost <- 6  # Cost of ChatGPT processing ($)
+chatgpt_time <- 22 / 60  # Convert 22 minutes to hours
+manual_time <- 10  # Manual extraction time (hours)
+manual_cost_per_hour <- 20  # Assumed base salary per hour ($)
+manual_cost <- manual_time * manual_cost_per_hour  # Total cost of manual extraction
+
+# Calculate efficiency
+time_saved <- manual_time - chatgpt_time
+cost_saved <- manual_cost - chatgpt_cost
+time_efficiency <- (time_saved / manual_time) * 100
+cost_efficiency <- (cost_saved / manual_cost) * 100
+
+# Display results
+cat("\n Cost-Time Analysis\n")
+cat("🔹 ChatGPT Time:", round(chatgpt_time, 2), "hours\n")
+cat("🔹 Manual Time:", manual_time, "hours\n")
+cat("🔹 Time Saved:", round(time_saved, 2), "hours (", round(time_efficiency, 2), "% less time)\n")
+cat("\n🔹 ChatGPT Cost: $", chatgpt_cost, "\n")
+cat("🔹 Manual Cost: $", manual_cost, "\n")
+cat("🔹 Cost Saved: $", round(cost_saved, 2), "(", round(cost_efficiency, 2), "% reduction)\n")
+
+
+
+```
+
+
+## Process of prompt improvment and tips 
+
+```{r}
+
+# Create a data frame summarizing challenges and prompt improvements
+challenges_table <- data.frame(
+  Variable = c("Countries", "Products", "Practices"),
+  Challenges = c(
+    "1. When no country is explicitly mentioned in the abstract, ChatGPT often guesses a country based on contextual clues, leading to misclassification errors.\n
+     2. In some cases, ChatGPT infers a country based on affiliations or geographical mentions unrelated to the experiment itself.",
+    
+    "1. Feeding experiments: The model struggles to distinguish between the studied animal and the crops used as feed, often listing crops instead of the animal.\n
+     2. Intercropping & Crop Rotation: ChatGPT frequently extracts only part of the crops mentioned, missing key components of the experiment.\n
+     3. No explicit crop mentioned: If no crop is clearly stated, ChatGPT guesses a crop incorrectly, leading to unreliable tagging.",
+    
+    "1. Improved Varieties & Agroforestry: These practices are often implicit in the study (e.g., different variety names or tree species), but ChatGPT fails to classify them correctly.\n
+     2. Overlapping Terminologies: Some agricultural practices (e.g., green manure, crop residue incorporation, and mulching) lack clear differentiation in research papers, making standardization difficult.\n
+     3. Literal Term Extraction: ChatGPT accurately extracts the terminology used in the paper, but this makes harmonization with predefined categories more complex."
+  ),
+  Suggested_Improvements = c(
+    "1. Modify the prompt to return 'NA' if no country is explicitly mentioned, rather than making assumptions.\n
+     2. Add a rule to extract only explicitly stated country names to avoid incorrect inferences.\n",
+    "1. Enhance the prompt to prioritize identifying the studied animal in feeding trials, ensuring that crops used as feed are not mistakenly classified as the main research focus.\n
+     2. Include an instruction for listing all crops in intercropping or crop rotation experiments, rather than extracting only a subset.\n
+     3. Reinforce that if no crop is explicitly mentioned, return 'NA' instead of guessing.",
+    "1. Improve the prompt by detecting improved varieties and agroforestry based on contextual clues, such as variety names or the presence of tree species.\n"
+  )
+)
+
+
+# Print the table in Markdown with improved formatting
+knitr::kable(challenges_table, caption = "Challenges and Suggested Prompt Improvements for AI Extraction") %>%
+  kable_styling(full_width = FALSE)%>%
+  column_spec(1, bold = TRUE) # Only bold the first column (row titles)
+
+```
+
+
+
+
+
+
