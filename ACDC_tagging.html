@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lolita Muller">
+<meta name="dcterms.date" content="2025-02-12">
+
+<title>Tagging Agricultural Research Papers with AI</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="ACDC_tagging_files/libs/clipboard/clipboard.min.js"></script>
+<script src="ACDC_tagging_files/libs/quarto-html/quarto.js"></script>
+<script src="ACDC_tagging_files/libs/quarto-html/popper.min.js"></script>
+<script src="ACDC_tagging_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ACDC_tagging_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ACDC_tagging_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ACDC_tagging_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ACDC_tagging_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ACDC_tagging_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ACDC_tagging_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="ACDC_tagging_files/libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="ACDC_tagging_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#tagging-agreocological-research-papers-with-ai" id="toc-tagging-agreocological-research-papers-with-ai" class="nav-link active" data-scroll-target="#tagging-agreocological-research-papers-with-ai"><span class="header-section-number">1</span> Tagging agreocological research papers with AI</a>
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">1.1</span> Introduction</a>
+  <ul class="collapse">
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background"><span class="header-section-number">1.1.1</span> Background</a></li>
+  <li><a href="#objective" id="toc-objective" class="nav-link" data-scroll-target="#objective"><span class="header-section-number">1.1.2</span> Objective</a></li>
+  <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology"><span class="header-section-number">1.1.3</span> Methodology</a></li>
+  </ul></li>
+  <li><a href="#set-up" id="toc-set-up" class="nav-link" data-scroll-target="#set-up"><span class="header-section-number">1.2</span> Set up</a>
+  <ul class="collapse">
+  <li><a href="#load-packages" id="toc-load-packages" class="nav-link" data-scroll-target="#load-packages"><span class="header-section-number">1.2.1</span> Load packages</a></li>
+  <li><a href="#load-bibliography" id="toc-load-bibliography" class="nav-link" data-scroll-target="#load-bibliography"><span class="header-section-number">1.2.2</span> Load bibliography</a></li>
+  </ul></li>
+  <li><a href="#tag-with-chat-gpt" id="toc-tag-with-chat-gpt" class="nav-link" data-scroll-target="#tag-with-chat-gpt"><span class="header-section-number">1.3</span> Tag with chat gpt</a>
+  <ul class="collapse">
+  <li><a href="#set-up-chatgpt-model-and-api-key" id="toc-set-up-chatgpt-model-and-api-key" class="nav-link" data-scroll-target="#set-up-chatgpt-model-and-api-key"><span class="header-section-number">1.3.1</span> Set up chatgpt model and APi key</a></li>
+  <li><a href="#extract-abstracts-and-set-up-prompts." id="toc-extract-abstracts-and-set-up-prompts." class="nav-link" data-scroll-target="#extract-abstracts-and-set-up-prompts."><span class="header-section-number">1.3.2</span> Extract abstracts and set up prompts.</a></li>
+  <li><a href="#harmonizaton-of-answers" id="toc-harmonizaton-of-answers" class="nav-link" data-scroll-target="#harmonizaton-of-answers"><span class="header-section-number">1.3.3</span> Harmonizaton of answers</a>
+  <ul class="collapse">
+  <li><a href="#harmonization-of-practices" id="toc-harmonization-of-practices" class="nav-link" data-scroll-target="#harmonization-of-practices"><span class="header-section-number">1.3.3.1</span> Harmonization of practices</a></li>
+  <li><a href="#harmonization-of-outcomes" id="toc-harmonization-of-outcomes" class="nav-link" data-scroll-target="#harmonization-of-outcomes"><span class="header-section-number">1.3.3.2</span> Harmonization of outcomes</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#summary-of-prompts" id="toc-summary-of-prompts" class="nav-link" data-scroll-target="#summary-of-prompts"><span class="header-section-number">1.4</span> Summary of prompts</a></li>
+  <li><a href="#download-of-the-data-for-manual-tagging" id="toc-download-of-the-data-for-manual-tagging" class="nav-link" data-scroll-target="#download-of-the-data-for-manual-tagging"><span class="header-section-number">1.5</span> Download of the data for manual tagging</a></li>
+  <li><a href="#upload-complete-data-after-manual-tagging" id="toc-upload-complete-data-after-manual-tagging" class="nav-link" data-scroll-target="#upload-complete-data-after-manual-tagging"><span class="header-section-number">1.6</span> Upload complete data after manual tagging</a>
+  <ul class="collapse">
+  <li><a href="#variables" id="toc-variables" class="nav-link" data-scroll-target="#variables"><span class="header-section-number">1.6.1</span> Variables</a></li>
+  </ul></li>
+  <li><a href="#efficiency-analysis" id="toc-efficiency-analysis" class="nav-link" data-scroll-target="#efficiency-analysis"><span class="header-section-number">1.7</span> Efficiency analysis</a>
+  <ul class="collapse">
+  <li><a href="#analysis-by-variable" id="toc-analysis-by-variable" class="nav-link" data-scroll-target="#analysis-by-variable"><span class="header-section-number">1.7.1</span> Analysis by variable</a>
+  <ul class="collapse">
+  <li><a href="#country" id="toc-country" class="nav-link" data-scroll-target="#country"><span class="header-section-number">1.7.1.1</span> Country</a></li>
+  <li><a href="#crops" id="toc-crops" class="nav-link" data-scroll-target="#crops"><span class="header-section-number">1.7.1.2</span> Crops</a></li>
+  <li><a href="#practices" id="toc-practices" class="nav-link" data-scroll-target="#practices"><span class="header-section-number">1.7.1.3</span> Practices</a></li>
+  <li><a href="#outcomes" id="toc-outcomes" class="nav-link" data-scroll-target="#outcomes"><span class="header-section-number">1.7.1.4</span> Outcomes</a></li>
+  </ul></li>
+  <li><a href="#global-analysis" id="toc-global-analysis" class="nav-link" data-scroll-target="#global-analysis"><span class="header-section-number">1.7.2</span> Global Analysis</a></li>
+  <li><a href="#time-comparison" id="toc-time-comparison" class="nav-link" data-scroll-target="#time-comparison"><span class="header-section-number">1.7.3</span> Time comparison</a></li>
+  </ul></li>
+  <li><a href="#process-of-prompt-improvment-and-tips" id="toc-process-of-prompt-improvment-and-tips" class="nav-link" data-scroll-target="#process-of-prompt-improvment-and-tips"><span class="header-section-number">1.8</span> Process of prompt improvment and tips</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Tagging Agricultural Research Papers with AI</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Lolita Muller </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 12, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="tagging-agreocological-research-papers-with-ai" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Tagging agreocological research papers with AI</h1>
+<section id="introduction" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1.1</span> Introduction</h2>
+<section id="background" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="background"><span class="header-section-number">1.1.1</span> Background</h3>
+<p>Tagging agricultural research papers manually is a time-intensive and costly process. Researchers and policymakers require structured metadata—such as <strong>location, crops, practices, and outcomes</strong>—to analyze scientific trends. However, manually extracting this information from abstracts is laborious,and can be inconsistent.</p>
+</section>
+<section id="objective" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="objective"><span class="header-section-number">1.1.2</span> Objective</h3>
+<p>This study evaluates the efficiency of <strong>ChatGPT for automated metadata extraction</strong> from research abstracts. The AI-generated results are compared against manually curated data to assess: 1. <strong>Accuracy:</strong> How often AI-generated tags match human-tagged results. 2. <strong>Error Patterns:</strong> The types of mistakes AI makes (e.g., missing data, misclassification). 3. <strong>Time &amp; Cost Efficiency:</strong> The cost and time savings of AI-assisted tagging compared to manual extraction.</p>
+</section>
+<section id="methodology" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="methodology"><span class="header-section-number">1.1.3</span> Methodology</h3>
+<ul>
+<li><strong>Dataset:</strong> Research papers related to agricultural resilience from the ERA database.</li>
+<li><strong>Variables Extracted:</strong> Country, crops, practices, and outcomes.</li>
+<li><strong>Evaluation Metrics:</strong>
+<ul>
+<li><strong>Accuracy:</strong> Comparison of AI-generated tags against manually verified data.</li>
+<li><strong>Error Analysis:</strong> Categorizing AI mistakes as <em>minor (format issues)</em> or <em>major (wrong/missing data)</em>.</li>
+<li><strong>Efficiency Assessment:</strong> Measuring time and cost differences between AI-assisted and manual tagging.</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="set-up" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="set-up"><span class="header-section-number">1.2</span> Set up</h2>
+<section id="load-packages" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="load-packages"><span class="header-section-number">1.2.1</span> Load packages</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ellmer)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ERAg)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="load-bibliography" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="load-bibliography"><span class="header-section-number">1.2.2</span> Load bibliography</h3>
+<p>We need to load the data as well as the bibliography infromation and merge them together.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#extracted data from full text extraction</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>ERA<span class="ot">&lt;-</span>ERA.Compiled</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#bibliography</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>Bib<span class="ot">&lt;-</span>ERA_Bibliography</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>Bib<span class="ot">&lt;-</span>Bib<span class="sc">%&gt;%</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(ABSTRACT,ERACODE)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ERA<span class="ot">&lt;-</span>ERA<span class="sc">%&gt;%</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Code,Product,Country,Out.Pillar,Out.SubPillar,Out.Ind,Out.SubInd,PrName)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#nerge de two datasets</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>ERA <span class="ot">&lt;-</span> <span class="fu">merge</span>(ERA, Bib, <span class="at">by.x =</span> <span class="st">"Code"</span>, <span class="at">by.y =</span> <span class="st">"ERACODE"</span>, <span class="at">all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#every row is one study and the variables are in a comma separated list</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>ERA <span class="ot">&lt;-</span> ERA <span class="sc">%&gt;%</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Code) <span class="sc">%&gt;%</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">toString</span>(<span class="fu">unique</span>(.))))<span class="sc">%&gt;%</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Out.Pillar<span class="sc">==</span><span class="st">"Resilience"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="tag-with-chat-gpt" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="tag-with-chat-gpt"><span class="header-section-number">1.3</span> Tag with chat gpt</h2>
+<p>To use this approach, you’ll need an OpenAI account and an API key for accessing GPT models. Once you have your API key, you can customize your prompt based on your specific screening criteria.</p>
+<p>Since API calls incur costs each time they are executed, the code is currently commented out (#) to prevent unnecessary charges. It’s recommended to run the extraction process only when needed, and once you are satisfied with the results, save the output DataFrame to avoid repeated API costs.</p>
+<section id="set-up-chatgpt-model-and-api-key" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="set-up-chatgpt-model-and-api-key"><span class="header-section-number">1.3.1</span> Set up chatgpt model and APi key</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">OPENAI_API_KEY =</span> <span class="st">"your_openAI_key"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#we found that gpt4o mini is the most cost effective model</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>chat <span class="ot">&lt;-</span> <span class="fu">chat_openai</span>(<span class="at">model =</span> <span class="st">"gpt-4o-mini"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="extract-abstracts-and-set-up-prompts." class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="extract-abstracts-and-set-up-prompts."><span class="header-section-number">1.3.2</span> Extract abstracts and set up prompts.</h3>
+<p>We will incorporate the abstracts into our prompts, as ChatGPT will be extracting specific information directly from the scientific abstracts. Each prompt is structured to include the abstract alongside a targeted instruction designed to extract a particular type of information.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># abstract_text&lt;- ERA$ABSTRACT</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # Create a Chat Object</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># prompts &lt;- type_object(</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   location_AI = type_string(</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Extract the country name in which the experiment was done. If no country is mentioned, return NA."</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   ),</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># crops_AI = type_string(</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Extract the crops or animals that are studied in this experiment, provide them as a comma separated list.If no crop is mentionned return NA. Do not mentionned the crops used as residues but only the growing crops"</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   ),</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   practices_AI = type_string(</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Extract the agricultural practices tested and compared in the experiment. Provide them as a comma separated list.Examples include storage, inorganic fertilizer, organic fertilizers, erosion, soil moisture, soil organic content, total nitrogen and others."</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   ),</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   outcomes_AI = type_string(</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Determine what variables are measured during the experiment. Provide them as a comma separated list. Some include soil moisture,soil organic carbon,erosion, soil total nitrogen, water use efficiency etc.Do not include climatic variable only agriculture or soil variables. ")</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># # Process Abstracts</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co"># abstracts_info &lt;- lapply(abstract_text, function(abstract) {</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#   tryCatch({</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co">#     result &lt;- chat$extract_data(abstract, type = prompts)</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">#     data.frame(</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#       location_AI = result$location_AI %||% NA,</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co">#       crops_AI = result$crops_AI %||% NA,</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#       practices_AI = result$practices_AI %||% NA,</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#       outcomes_AI = result$outcomes_AI %||% NA</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#     )</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co">#   }, error = function(e) {</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co">#     data.frame(</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co">#       location_AI = NA,</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co">#       crops_AI = NA,</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="co">#       practices_AI = NA,</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co">#       outcomes_AI = NA</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="co">#     )</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="co">#   })</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="co"># })</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co"># # Convert to DataFrame</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="co"># abstracts_df &lt;- bind_rows(abstracts_info)</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="co"># # Merge extracted information with ERA data</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="co"># ERA_processed &lt;- cbind(ERA, abstracts_df)</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="co">#write.csv(ERA_processed, file = "ERA_ACDCtag.csv")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="harmonizaton-of-answers" class="level3" data-number="1.3.3">
+<h3 data-number="1.3.3" class="anchored" data-anchor-id="harmonizaton-of-answers"><span class="header-section-number">1.3.3</span> Harmonizaton of answers</h3>
+<p>For variables like outcomes and practices, the extracted terms may vary across abstracts while still being accurate. The model might successfully capture the relevant information, but differences in terminology can make comparison challenging. To streamline our analysis, we will harmonize these variables using a predefined list of standardized terms. ChatGPT will then categorize its previous responses into these standardized categories, ensuring consistency across the dataset.</p>
+<section id="harmonization-of-practices" class="level4" data-number="1.3.3.1">
+<h4 data-number="1.3.3.1" class="anchored" data-anchor-id="harmonization-of-practices"><span class="header-section-number">1.3.3.1</span> Harmonization of practices</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># practices&lt;- ERA_processed$practices_AI</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # Create a Chat Object</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Sys.setenv(OPENAI_API_KEY = "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")</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># chat &lt;- chat_openai(model = "gpt-4o-mini")</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># type_harm_paper &lt;- type_object(</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   practice_harm_AI = type_string(</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Harmonize agricultural practices mentioned in the text into the following predefined categories: Inorganic Fertilizers, Organic Fertilizers, Crop Rotation, Intercropping, Reduced Tillage, Agroforestry, Mulch, Crop Residue, Biochar, Deficit Irrigation, Storage, Water Harvesting, pH Control, Feed Addition, Supplemental Irrigation, Pasture Management, Cookstove, and Genetic Improvement.</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># If a practice falls under one of these categories, standardize it using the exact category name.</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># If multiple terms in the text belong to the same category, list that category only once.</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Return only the harmonized category names as a comma-separated list, with no additional text or explanations.</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># For example:</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># If the text includes 'application of nitrogen fertilizer' and 'use of urea,' return 'Inorganic Fertilizers' (not both separately).</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># If the text mentions 'intercropping, strip intercropping, mixed intercropping,' return 'Intercropping' (only once)."</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   ))</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># # Process Abstracts</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># practice_info &lt;- lapply(practices, function(abstract) {</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#   tryCatch({</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#     result &lt;- chat$extract_data(abstract, type = type_harm_paper)</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#     data.frame(</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co">#       practice_harm_AI = result$practice_harm_AI %||% NA</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">#     )</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">#   }, error = function(e) {</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#     data.frame(</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#       practice_harm_AI = NA</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">#     )</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co">#   })</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co"># })</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co"># # Convert to DataFrame</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co"># harm_df &lt;- bind_rows(practice_info)</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="co"># # Merge extracted information with ERA data</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="co"># ERA_processed2 &lt;- cbind(ERA_processed, harm_df)</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="harmonization-of-outcomes" class="level4" data-number="1.3.3.2">
+<h4 data-number="1.3.3.2" class="anchored" data-anchor-id="harmonization-of-outcomes"><span class="header-section-number">1.3.3.2</span> Harmonization of outcomes</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># outcomes&lt;- ERA_processed$outcomes_AI</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # Create a Chat Object</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Sys.setenv(OPENAI_API_KEY = "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")</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># chat &lt;- chat_openai(model = "gpt-4o-mini")</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># type_harm_paper2 &lt;- type_object(</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   out_harm_AI = type_string(</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Harmonize agricultural variable measured mentioned in the text into the following predefined variable names: Runoff, Pest &amp; Pathogen (Losses), Pest &amp; Pathogen (Numbers),Soil Moisture, Soil Total Nitrogen, Soil Organic Carbon, Cation Exchange Capacity,Soil Organic Matter,Infiltration Rate,Erosion,Soil Available Nitrogen,Water Use,Water Use Efficiency,Nitrogen Agronomic Efficiency,Beneficial Organisms,Soil NH4, Soil NO3,Biodiversity.</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># If a practice falls under one of these categories, standardize it using the exact category name.</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># If a variable doesnt fall under any of the harmonized names, remove it..</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Return only the harmonized variable names as a comma-separated list, with no additional text or explanations.</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># For example:</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># If the text includes 'soil erodibility, runoff volume</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ', return 'runoff' (remove soil erodibility).</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># If the text mentions 'total nitrogen, base saturation, exchange acidity, soil pH, electrical conductivity, organic carbon, plant height, number of leaves</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># ' return 'Soil Total Nitrogen, Soil Organic Carbon, Effective Cation Exchange Capacity</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co"># '"</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#   ))</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co"># # Process Abstracts</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co"># out_info &lt;- lapply(outcomes, function(abstract) {</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#   tryCatch({</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co">#     result &lt;- chat$extract_data(abstract, type = type_harm_paper2)</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co">#     data.frame(</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">#       out_harm_AI = result$out_harm_AI %||% NA</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co">#     )</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co">#   }, error = function(e) {</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="co">#     data.frame(</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co">#       out_harm_AI = NA</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="co">#     )</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="co">#   })</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="co"># })</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="co"># # Convert to DataFrame</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="co"># harm_df2 &lt;- bind_rows(out_info)</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a><span class="co"># # Merge extracted information with ERA data</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="co"># ERA_processed3 &lt;- cbind(ERA_processed2, harm_df2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+</section>
+<section id="summary-of-prompts" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="summary-of-prompts"><span class="header-section-number">1.4</span> Summary of prompts</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the prompts for each variable</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>prompts_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">c</span>(<span class="st">"Location"</span>, <span class="st">"Product"</span>, <span class="st">"Practice"</span>, <span class="st">"Outcome"</span>, <span class="st">"Harmonized practice"</span>,<span class="st">"harmonized Outcome"</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Description =</span> <span class="fu">c</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Extract the country name in which the experiment was done. If no country is mentioned, return NA."</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Extract the crops or animals that are studied in this experiment, provide them as a comma-separated list. If no crop is mentioned, return NA. Do not mention crops used as residues, only growing crops."</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Extract the agricultural practices tested and compared in the experiment. Provide them as a comma-separated list. Examples include storage, inorganic fertilizer, organic fertilizers, erosion, soil moisture, soil organic content, total nitrogen, etc."</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Determine what variables are measured during the experiment. Provide them as a comma-separated list. Examples include soil moisture, soil organic carbon, erosion, soil total nitrogen, water use efficiency, etc. Do not include climatic variables, only agriculture or soil variables."</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Harmonize agricultural practices mentioned in the text into predefined categories: Inorganic Fertilizers, Organic Fertilizers, Crop Rotation, Intercropping, Reduced Tillage, Agroforestry, Mulch, Crop Residue, Biochar, Deficit Irrigation, Storage, Water Harvesting, pH Control, Feed Addition, Supplemental Irrigation, Pasture Management, Cookstove, and Genetic Improvement. If multiple terms belong to the same category, list that category only once."</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Harmonize agricultural variable measured mentioned in the text into the following predefined variable names: Runoff, Pest &amp; Pathogen (Losses), Pest &amp; Pathogen (Numbers),Soil Moisture, Soil Total Nitrogen, Soil Organic Carbon, Cation Exchange Capacity,Soil Organic Matter,Infiltration Rate,Erosion,Soil Available Nitrogen,Water Use,Water Use Efficiency,Nitrogen Agronomic Efficiency,Beneficial Organisms,Soil NH4, Soil NO3,Biodiversity.</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="st">If a practice falls under one of these categories, standardize it using the exact category name.</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="st">If a variable doesnt fall under any of the harmonized names, remove it..</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="st">Return only the harmonized variable names as a comma-separated list, with no additional text or explanations.</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="st">For example:</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="st">If the text includes 'soil erodibility, runoff volume</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="st">', return 'runoff' (remove soil erodibility).</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="st">If the text mentions 'total nitrogen, base saturation, exchange acidity, soil pH, electrical conductivity, organic carbon, plant height, number of leaves</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="st">' return 'Soil Total Nitrogen, Soil Organic Carbon, Effective Cation Exchange Capacity</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="st">'"</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the table using kable (for R Markdown)</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(prompts_table, <span class="at">caption =</span> <span class="st">"Summary of ChatGPT Prompts and Expected Responses"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Summary of ChatGPT Prompts and Expected Responses</caption>
+<colgroup>
+<col style="width: 1%">
+<col style="width: 98%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Location</td>
+<td style="text-align: left;">Extract the country name in which the experiment was done. If no country is mentioned, return NA.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Product</td>
+<td style="text-align: left;">Extract the crops or animals that are studied in this experiment, provide them as a comma-separated list. If no crop is mentioned, return NA. Do not mention crops used as residues, only growing crops.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Practice</td>
+<td style="text-align: left;">Extract the agricultural practices tested and compared in the experiment. Provide them as a comma-separated list. Examples include storage, inorganic fertilizer, organic fertilizers, erosion, soil moisture, soil organic content, total nitrogen, etc.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Outcome</td>
+<td style="text-align: left;">Determine what variables are measured during the experiment. Provide them as a comma-separated list. Examples include soil moisture, soil organic carbon, erosion, soil total nitrogen, water use efficiency, etc. Do not include climatic variables, only agriculture or soil variables.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Harmonized practice</td>
+<td style="text-align: left;">Harmonize agricultural practices mentioned in the text into predefined categories: Inorganic Fertilizers, Organic Fertilizers, Crop Rotation, Intercropping, Reduced Tillage, Agroforestry, Mulch, Crop Residue, Biochar, Deficit Irrigation, Storage, Water Harvesting, pH Control, Feed Addition, Supplemental Irrigation, Pasture Management, Cookstove, and Genetic Improvement. If multiple terms belong to the same category, list that category only once.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">harmonized Outcome</td>
+<td style="text-align: left;">Harmonize agricultural variable measured mentioned in the text into the following predefined variable names: Runoff, Pest &amp; Pathogen (Losses), Pest &amp; Pathogen (Numbers),Soil Moisture, Soil Total Nitrogen, Soil Organic Carbon, Cation Exchange Capacity,Soil Organic Matter,Infiltration Rate,Erosion,Soil Available Nitrogen,Water Use,Water Use Efficiency,Nitrogen Agronomic Efficiency,Beneficial Organisms,Soil NH4, Soil NO3,Biodiversity.</td>
+</tr>
+</tbody>
+</table>
+<p>If a practice falls under one of these categories, standardize it using the exact category name. If a variable doesnt fall under any of the harmonized names, remove it.. Return only the harmonized variable names as a comma-separated list, with no additional text or explanations. For example: If the text includes ‘soil erodibility, runoff volume’, return ‘runoff’ (remove soil erodibility). If the text mentions ‘total nitrogen, base saturation, exchange acidity, soil pH, electrical conductivity, organic carbon, plant height, number of leaves’ return ‘Soil Total Nitrogen, Soil Organic Carbon, Effective Cation Exchange Capacity’ |</p>
+</div>
+</div>
+</section>
+<section id="download-of-the-data-for-manual-tagging" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="download-of-the-data-for-manual-tagging"><span class="header-section-number">1.5</span> Download of the data for manual tagging</h2>
+<p>To evaluate the efficiency of ChatGPT in tagging, we will also perform the process manually. This will allow us to compare accuracy, cost, and time investment between AI-assisted and manual extraction methods.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write.csv(ERA_processed3, file = "ERA_TEST_YES.csv")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="upload-complete-data-after-manual-tagging" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="upload-complete-data-after-manual-tagging"><span class="header-section-number">1.6</span> Upload complete data after manual tagging</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ERA_complete <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"ERA_TEST_YES (version 1).xlsb.csv"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#select relevant columns for analysis </span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>ERA_complete <span class="ot">&lt;-</span> ERA_complete<span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(ABSTRACT,location_AI,country_manual,<span class="st">`</span><span class="at">country-result</span><span class="st">`</span>,crops_AI,product_manual,product_result,practices_AI,practice_harm_AI,practice_result,practice_result_type,practice_harm_result,Practice_harm_result_type,outcomes_AI,out_harm_AI,outcome_manual,outcome_result,outcome_result_type,outcome_harm_result,outcome_harm_result_type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="variables" class="level3" data-number="1.6.1">
+<h3 data-number="1.6.1" class="anchored" data-anchor-id="variables"><span class="header-section-number">1.6.1</span> Variables</h3>
+<p>This table combines data extracted by ChatGPT with manually extracted data. When the AI-extracted data matches the manually extracted data, the “Result” column will display “True”; otherwise, it will show “False”.</p>
+<p>For more complex prompts, such as practices and outcomes, an additional “result type” column categorizes discrepancies:</p>
+<p>Minor errors indicate that the information is present but not in the expected format or with too much infromation but the needed information is in the answer. Major errors occur when key information is missing or the AI provides an incorrect response.</p>
+</section>
+</section>
+<section id="efficiency-analysis" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="efficiency-analysis"><span class="header-section-number">1.7</span> Efficiency analysis</h2>
+<section id="analysis-by-variable" class="level3" data-number="1.7.1">
+<h3 data-number="1.7.1" class="anchored" data-anchor-id="analysis-by-variable"><span class="header-section-number">1.7.1</span> Analysis by variable</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume dataset is named `ERA_processed2`</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> ERA_complete </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate efficiency</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>calculate_efficiency <span class="ot">&lt;-</span> <span class="cf">function</span>(true_false_column) {</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  total <span class="ot">&lt;-</span> <span class="fu">nrow</span>(data)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  true_count <span class="ot">&lt;-</span> <span class="fu">sum</span>(data[[true_false_column]] <span class="sc">==</span> <span class="st">"TRUE"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  efficiency <span class="ot">&lt;-</span> (true_count <span class="sc">/</span> total) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(efficiency)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="country" class="level4" data-number="1.7.1.1">
+<h4 data-number="1.7.1.1" class="anchored" data-anchor-id="country"><span class="header-section-number">1.7.1.1</span> Country</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate location efficiency</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>location_efficiency <span class="ot">&lt;-</span> <span class="fu">calculate_efficiency</span>(<span class="st">"country-result"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print result</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"📍 Location Extraction Efficiency</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"✅ Accuracy:"</span>, <span class="fu">round</span>(location_efficiency, <span class="dv">2</span>), <span class="st">"%</span><span class="sc">\n\n</span><span class="st">"</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>📍 Location Extraction Efficiency
+✅ Accuracy:87.65%</code></pre>
+</div>
+</div>
+</section>
+<section id="crops" class="level4" data-number="1.7.1.2">
+<h4 data-number="1.7.1.2" class="anchored" data-anchor-id="crops"><span class="header-section-number">1.7.1.2</span> Crops</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate crops efficiency</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>crops_efficiency <span class="ot">&lt;-</span> <span class="fu">calculate_efficiency</span>(<span class="st">"product_result"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print result</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"🌿 Crops Extraction Efficiency</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"✅ Accuracy:"</span>, <span class="fu">round</span>(crops_efficiency, <span class="dv">2</span>), <span class="st">"%</span><span class="sc">\n\n</span><span class="st">"</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>🌿 Crops Extraction Efficiency
+✅ Accuracy:85.19%</code></pre>
+</div>
+</div>
+</section>
+<section id="practices" class="level4" data-number="1.7.1.3">
+<h4 data-number="1.7.1.3" class="anchored" data-anchor-id="practices"><span class="header-section-number">1.7.1.3</span> Practices</h4>
+<section id="practices-tagging" class="level5" data-number="1.7.1.3.1">
+<h5 data-number="1.7.1.3.1" class="anchored" data-anchor-id="practices-tagging"><span class="header-section-number">1.7.1.3.1</span> Practices tagging</h5>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate practices efficiency</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>practices_efficiency <span class="ot">&lt;-</span> <span class="fu">calculate_efficiency</span>(<span class="st">"practice_result"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Count minor and major errors</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>practice_minor_errors <span class="ot">&lt;-</span> <span class="fu">sum</span>(data<span class="sc">$</span>practice_result_type <span class="sc">==</span> <span class="st">"minor"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>practice_major_errors <span class="ot">&lt;-</span> <span class="fu">sum</span>(data<span class="sc">$</span>practice_result_type <span class="sc">==</span> <span class="st">"major"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Print results</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"🔧 Practices Extraction Efficiency</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"✅ Accuracy:"</span>, <span class="fu">round</span>(practices_efficiency, <span class="dv">2</span>), <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"⚠️ Minor errors:"</span>, practice_minor_errors, <span class="st">" | ❌ Major errors:"</span>, practice_major_errors, <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>🔧 Practices Extraction Efficiency
+✅ Accuracy:88.48%
+⚠️ Minor errors:11 | ❌ Major errors:21</code></pre>
+</div>
+</div>
+</section>
+<section id="harmonized-practices" class="level5" data-number="1.7.1.3.2">
+<h5 data-number="1.7.1.3.2" class="anchored" data-anchor-id="harmonized-practices"><span class="header-section-number">1.7.1.3.2</span> Harmonized practices</h5>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate harmonized practices efficiency</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>harmonized_practices_efficiency <span class="ot">&lt;-</span> <span class="fu">calculate_efficiency</span>(<span class="st">"practice_harm_result"</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Count minor and major errors</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>harm_practice_minor_errors <span class="ot">&lt;-</span> <span class="fu">sum</span>(data<span class="sc">$</span>Practice_harm_result_type <span class="sc">==</span> <span class="st">"minor"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>harm_practice_major_errors <span class="ot">&lt;-</span> <span class="fu">sum</span>(data<span class="sc">$</span>Practice_harm_result_type <span class="sc">==</span> <span class="st">"major"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Print results</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"🛠 Harmonized Practices Extraction Efficiency</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"✅ Accuracy:"</span>, <span class="fu">round</span>(harmonized_practices_efficiency, <span class="dv">2</span>), <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"⚠️ Minor errors:"</span>, harm_practice_minor_errors, <span class="st">" | ❌ Major errors:"</span>, harm_practice_major_errors, <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>🛠 Harmonized Practices Extraction Efficiency
+✅ Accuracy:50.21%
+⚠️ Minor errors:61 | ❌ Major errors:60</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="outcomes" class="level4" data-number="1.7.1.4">
+<h4 data-number="1.7.1.4" class="anchored" data-anchor-id="outcomes"><span class="header-section-number">1.7.1.4</span> Outcomes</h4>
+<section id="outcomes-tagging" class="level5" data-number="1.7.1.4.1">
+<h5 data-number="1.7.1.4.1" class="anchored" data-anchor-id="outcomes-tagging"><span class="header-section-number">1.7.1.4.1</span> Outcomes tagging</h5>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate outcomes efficiency</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>outcomes_efficiency <span class="ot">&lt;-</span> <span class="fu">calculate_efficiency</span>(<span class="st">"outcome_result"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Count minor and major errors</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>outcome_minor_errors <span class="ot">&lt;-</span> <span class="fu">sum</span>(data<span class="sc">$</span>outcome_result_type <span class="sc">==</span> <span class="st">"minor"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>outcome_major_errors <span class="ot">&lt;-</span> <span class="fu">sum</span>(data<span class="sc">$</span>outcome_result_type <span class="sc">==</span> <span class="st">"major"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Print results</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"📊 Outcomes Extraction Efficiency</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"✅ Accuracy:"</span>, <span class="fu">round</span>(outcomes_efficiency, <span class="dv">2</span>), <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"⚠️ Minor errors:"</span>, outcome_minor_errors, <span class="st">" | ❌ Major errors:"</span>, outcome_major_errors, <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>,</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>📊 Outcomes Extraction Efficiency
+✅ Accuracy:95.88%
+⚠️ Minor errors:3 | ❌ Major errors:7</code></pre>
+</div>
+</div>
+</section>
+<section id="outcomes-harmonization" class="level5" data-number="1.7.1.4.2">
+<h5 data-number="1.7.1.4.2" class="anchored" data-anchor-id="outcomes-harmonization"><span class="header-section-number">1.7.1.4.2</span> Outcomes harmonization</h5>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate harmonized outcomes efficiency</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>harmonized_outcomes_efficiency <span class="ot">&lt;-</span> <span class="fu">calculate_efficiency</span>(<span class="st">"outcome_harm_result"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Count minor and major errors</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>harm_outcome_minor_errors <span class="ot">&lt;-</span> <span class="fu">sum</span>(data<span class="sc">$</span>outcome_harm_result_type <span class="sc">==</span> <span class="st">"minor"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>harm_outcome_major_errors <span class="ot">&lt;-</span> <span class="fu">sum</span>(data<span class="sc">$</span>outcome_harm_result_type <span class="sc">==</span> <span class="st">"major"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"📈 Harmonized Outcomes Extraction Efficiency</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"✅ Accuracy:"</span>, <span class="fu">round</span>(harmonized_outcomes_efficiency, <span class="dv">2</span>), <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"⚠️ Minor errors:"</span>, harm_outcome_minor_errors, <span class="st">" | ❌ Major errors:"</span>, harm_outcome_major_errors, <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>📈 Harmonized Outcomes Extraction Efficiency
+✅ Accuracy:49.38%
+⚠️ Minor errors:29 | ❌ Major errors:92</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="global-analysis" class="level3" data-number="1.7.2">
+<h3 data-number="1.7.2" class="anchored" data-anchor-id="global-analysis"><span class="header-section-number">1.7.2</span> Global Analysis</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create efficiency summary table</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>efficiency_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">c</span>(<span class="st">"Location"</span>, <span class="st">"Crops"</span>, <span class="st">"Practices"</span>, <span class="st">"Harmonized Practices"</span>, <span class="st">"Outcomes"</span>, <span class="st">"Harmonized Outcomes"</span>),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Efficiency_Percentage =</span> <span class="fu">c</span>(</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    location_efficiency, crops_efficiency, practices_efficiency, </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    harmonized_practices_efficiency, outcomes_efficiency, harmonized_outcomes_efficiency</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Print formatted table</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>efficiency_summary <span class="sc">%&gt;%</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>, <span class="at">caption =</span> <span class="st">"Efficiency Summary of ChatGPT Tagging"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>, <span class="st">"responsive"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small" data-quarto-postprocess="true">
+<caption>Efficiency Summary of ChatGPT Tagging</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Variable</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Efficiency_Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Location</td>
+<td style="text-align: right;">87.65432</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Crops</td>
+<td style="text-align: right;">85.18519</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Practices</td>
+<td style="text-align: right;">88.47737</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Harmonized Practices</td>
+<td style="text-align: right;">50.20576</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Outcomes</td>
+<td style="text-align: right;">95.88477</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Harmonized Outcomes</td>
+<td style="text-align: right;">49.38272</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example efficiency data (replace with actual values)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>efficiency_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">c</span>(<span class="st">"Location"</span>, <span class="st">"Crops"</span>, <span class="st">"Practices"</span>, <span class="st">"Harmonized Practices"</span>, <span class="st">"Outcomes"</span>, <span class="st">"Harmonized Outcomes"</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">True_Percentage =</span> <span class="fu">c</span>(location_efficiency, crops_efficiency, practices_efficiency, </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                      harmonized_practices_efficiency, outcomes_efficiency, harmonized_outcomes_efficiency)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate False Percentage (100 - True_Percentage)</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>efficiency_data<span class="sc">$</span>False_Percentage <span class="ot">&lt;-</span> <span class="dv">100</span> <span class="sc">-</span> efficiency_data<span class="sc">$</span>True_Percentage</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>create_donut_chart <span class="ot">&lt;-</span> <span class="cf">function</span>(variable, true_value, false_value) {</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Prepare data</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">c</span>(<span class="st">"Correct"</span>, <span class="st">"Incorrect"</span>),</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">Percentage =</span> <span class="fu">c</span>(true_value, false_value)</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create a gauge-style donut chart</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">2</span>, <span class="at">y =</span> Percentage, <span class="at">fill =</span> Category)) <span class="sc">+</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">width =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># Adjust width for thinner ring</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_polar</span>(<span class="st">"y"</span>, <span class="at">start =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Correct"</span> <span class="ot">=</span> <span class="st">"steelblue"</span>, <span class="st">"Incorrect"</span> <span class="ot">=</span> <span class="st">"darkred"</span>)) <span class="sc">+</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste</span>(<span class="st">"Accuracy for"</span>, variable)) <span class="sc">+</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>,<span class="at">size=</span><span class="dv">22</span>),</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.title =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlim</span>(<span class="dv">1</span>, <span class="dv">3</span>)  <span class="co"># Adjust x-axis to create the hollow effect</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>donut_location <span class="ot">&lt;-</span> <span class="fu">create_donut_chart</span>(<span class="st">"Location"</span>, efficiency_data<span class="sc">$</span>True_Percentage[<span class="dv">1</span>], efficiency_data<span class="sc">$</span>False_Percentage[<span class="dv">1</span>])</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>donut_crops <span class="ot">&lt;-</span> <span class="fu">create_donut_chart</span>(<span class="st">"Crops"</span>, efficiency_data<span class="sc">$</span>True_Percentage[<span class="dv">2</span>], efficiency_data<span class="sc">$</span>False_Percentage[<span class="dv">2</span>])</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>donut_practices <span class="ot">&lt;-</span> <span class="fu">create_donut_chart</span>(<span class="st">"Practices"</span>, efficiency_data<span class="sc">$</span>True_Percentage[<span class="dv">3</span>], efficiency_data<span class="sc">$</span>False_Percentage[<span class="dv">3</span>])</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>donut_harmonized_practices <span class="ot">&lt;-</span> <span class="fu">create_donut_chart</span>(<span class="st">"Harmonized Practices"</span>, efficiency_data<span class="sc">$</span>True_Percentage[<span class="dv">4</span>], efficiency_data<span class="sc">$</span>False_Percentage[<span class="dv">4</span>])</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>donut_outcomes <span class="ot">&lt;-</span> <span class="fu">create_donut_chart</span>(<span class="st">"Outcomes"</span>, efficiency_data<span class="sc">$</span>True_Percentage[<span class="dv">5</span>], efficiency_data<span class="sc">$</span>False_Percentage[<span class="dv">5</span>])</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>donut_harmonized_outcomes <span class="ot">&lt;-</span> <span class="fu">create_donut_chart</span>(<span class="st">"Harmonized Outcomes"</span>, efficiency_data<span class="sc">$</span>True_Percentage[<span class="dv">6</span>], efficiency_data<span class="sc">$</span>False_Percentage[<span class="dv">6</span>])</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Display all plots (Run each individually or use a grid layout)</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>panel_plot <span class="ot">&lt;-</span> donut_location<span class="sc">+</span> donut_crops<span class="sc">+</span> donut_practices<span class="sc">+</span>donut_harmonized_practices<span class="sc">+</span>donut_outcomes<span class="sc">+</span>donut_harmonized_outcomes <span class="sc">+</span> </span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">guides =</span> <span class="st">"collect"</span>)  <span class="co"># Arrange in 2 columns, share legend</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the panel</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>panel_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ACDC_tagging_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate mean efficiency across all categories</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>global_true <span class="ot">&lt;-</span> <span class="fu">mean</span>(efficiency_data<span class="sc">$</span>True_Percentage)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>global_false <span class="ot">&lt;-</span> <span class="dv">100</span> <span class="sc">-</span> global_true</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a summary donut chart</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>global_donut <span class="ot">&lt;-</span> <span class="fu">create_donut_chart</span>(<span class="st">"Overall Accuracy"</span>, global_true, global_false)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>global_donut</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ACDC_tagging_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>mean_efficiency <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">c</span>(location_efficiency, crops_efficiency, practices_efficiency, outcomes_efficiency), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"**Mean efficiency across country, crops, practices, and outcomes:**"</span>, <span class="fu">round</span>(mean_efficiency, <span class="dv">2</span>), <span class="st">"%**</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p><strong>Mean efficiency across country, crops, practices, and outcomes:</strong> 89.3 %**</p>
+</section>
+<section id="time-comparison" class="level3" data-number="1.7.3">
+<h3 data-number="1.7.3" class="anchored" data-anchor-id="time-comparison"><span class="header-section-number">1.7.3</span> Time comparison</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Given data</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>chatgpt_cost <span class="ot">&lt;-</span> <span class="dv">6</span>  <span class="co"># Cost of ChatGPT processing ($)</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>chatgpt_time <span class="ot">&lt;-</span> <span class="dv">22</span> <span class="sc">/</span> <span class="dv">60</span>  <span class="co"># Convert 22 minutes to hours</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>manual_time <span class="ot">&lt;-</span> <span class="dv">10</span>  <span class="co"># Manual extraction time (hours)</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>manual_cost_per_hour <span class="ot">&lt;-</span> <span class="dv">20</span>  <span class="co"># Assumed base salary per hour ($)</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>manual_cost <span class="ot">&lt;-</span> manual_time <span class="sc">*</span> manual_cost_per_hour  <span class="co"># Total cost of manual extraction</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate efficiency</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>time_saved <span class="ot">&lt;-</span> manual_time <span class="sc">-</span> chatgpt_time</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>cost_saved <span class="ot">&lt;-</span> manual_cost <span class="sc">-</span> chatgpt_cost</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>time_efficiency <span class="ot">&lt;-</span> (time_saved <span class="sc">/</span> manual_time) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>cost_efficiency <span class="ot">&lt;-</span> (cost_saved <span class="sc">/</span> manual_cost) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Display results</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st"> Cost-Time Analysis</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"🔹 ChatGPT Time:"</span>, <span class="fu">round</span>(chatgpt_time, <span class="dv">2</span>), <span class="st">"hours</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"🔹 Manual Time:"</span>, manual_time, <span class="st">"hours</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"🔹 Time Saved:"</span>, <span class="fu">round</span>(time_saved, <span class="dv">2</span>), <span class="st">"hours ("</span>, <span class="fu">round</span>(time_efficiency, <span class="dv">2</span>), <span class="st">"% less time)</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">🔹 ChatGPT Cost: $"</span>, chatgpt_cost, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"🔹 Manual Cost: $"</span>, manual_cost, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"🔹 Cost Saved: $"</span>, <span class="fu">round</span>(cost_saved, <span class="dv">2</span>), <span class="st">"("</span>, <span class="fu">round</span>(cost_efficiency, <span class="dv">2</span>), <span class="st">"% reduction)</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Cost-Time Analysis
+🔹 ChatGPT Time: 0.37 hours
+🔹 Manual Time: 10 hours
+🔹 Time Saved: 9.63 hours ( 96.33 % less time)
+
+🔹 ChatGPT Cost: $ 6 
+🔹 Manual Cost: $ 200 
+🔹 Cost Saved: $ 194 ( 97 % reduction)</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="process-of-prompt-improvment-and-tips" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="process-of-prompt-improvment-and-tips"><span class="header-section-number">1.8</span> Process of prompt improvment and tips</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame summarizing challenges and prompt improvements</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>challenges_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">c</span>(<span class="st">"Countries"</span>, <span class="st">"Products"</span>, <span class="st">"Practices"</span>),</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Challenges =</span> <span class="fu">c</span>(</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1. When no country is explicitly mentioned in the abstract, ChatGPT often guesses a country based on contextual clues, leading to misclassification errors.</span><span class="sc">\n</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="st">     2. In some cases, ChatGPT infers a country based on affiliations or geographical mentions unrelated to the experiment itself."</span>,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1. Feeding experiments: The model struggles to distinguish between the studied animal and the crops used as feed, often listing crops instead of the animal.</span><span class="sc">\n</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="st">     2. Intercropping &amp; Crop Rotation: ChatGPT frequently extracts only part of the crops mentioned, missing key components of the experiment.</span><span class="sc">\n</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="st">     3. No explicit crop mentioned: If no crop is clearly stated, ChatGPT guesses a crop incorrectly, leading to unreliable tagging."</span>,</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1. Improved Varieties &amp; Agroforestry: These practices are often implicit in the study (e.g., different variety names or tree species), but ChatGPT fails to classify them correctly.</span><span class="sc">\n</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="st">     2. Overlapping Terminologies: Some agricultural practices (e.g., green manure, crop residue incorporation, and mulching) lack clear differentiation in research papers, making standardization difficult.</span><span class="sc">\n</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="st">     3. Literal Term Extraction: ChatGPT accurately extracts the terminology used in the paper, but this makes harmonization with predefined categories more complex."</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Suggested_Improvements =</span> <span class="fu">c</span>(</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1. Modify the prompt to return 'NA' if no country is explicitly mentioned, rather than making assumptions.</span><span class="sc">\n</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a><span class="st">     2. Add a rule to extract only explicitly stated country names to avoid incorrect inferences.</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1. Enhance the prompt to prioritize identifying the studied animal in feeding trials, ensuring that crops used as feed are not mistakenly classified as the main research focus.</span><span class="sc">\n</span></span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a><span class="st">     2. Include an instruction for listing all crops in intercropping or crop rotation experiments, rather than extracting only a subset.</span><span class="sc">\n</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a><span class="st">     3. Reinforce that if no crop is explicitly mentioned, return 'NA' instead of guessing."</span>,</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1. Improve the prompt by detecting improved varieties and agroforestry based on contextual clues, such as variety names or the presence of tree species.</span><span class="sc">\n</span><span class="st">"</span></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the table in Markdown with improved formatting</span></span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(challenges_table, <span class="at">caption =</span> <span class="st">"Challenges and Suggested Prompt Improvements for AI Extraction"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>) <span class="co"># Only bold the first column (row titles)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Challenges and Suggested Prompt Improvements for AI Extraction</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Variable</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Challenges</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Suggested_Improvements</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold;">Countries</td>
+<td style="text-align: left;">1. When no country is explicitly mentioned in the abstract, ChatGPT often guesses a country based on contextual clues, leading to misclassification errors. 2. In some cases, ChatGPT infers a country based on affiliations or geographical mentions unrelated to the experiment itself.</td>
+<td style="text-align: left;">|1. Modify the prompt to return 'NA' if no country is explicitly mentioned, rather than making assumptions. 2. Add a rule to extract only explicitly stated country names to avoid incorrect inferences.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; font-weight: bold;">Products</td>
+<td style="text-align: left;">1. Feeding experiments: The model struggles to distinguish between the studied animal and the crops used as feed, often listing crops instead of the animal. 2. Intercropping &amp; Crop Rotation: ChatGPT frequently extracts only part of the crops mentioned, missing key components of the experiment. 3. No explicit crop mentioned: If no crop is clearly stated, ChatGPT guesses a crop incorrectly, leading to unreliable tagging.</td>
+<td style="text-align: left;">|1. Enhance the prompt to prioritize identifying the studied animal in feeding trials, ensuring that crops used as feed are not mistakenly classified as the main research focus. 2. Include an instruction for listing all crops in intercropping or crop rotation experiments, rather than extracting only a subset. 3. Reinforce that if no crop is explicitly mentioned, return 'NA' instead of gu</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold;">Practices</td>
+<td style="text-align: left;">1. Improved Varieties &amp; Agroforestry: These practices are often implicit in the study (e.g., different variety names or tree species), but ChatGPT fails to classify them correctly. 2. Overlapping Terminologies: Some agricultural practices (e.g., green manure, crop residue incorporation, and mulching) lack clear differentiation in research papers, making standardization difficult. 3. Literal Term Extraction: ChatGPT accurately extracts the terminology used in the paper, but this makes harmonization with predefined categories more compl</td>
+<td style="text-align: left;">x. |1. Improve the prompt by detecting improved varieties and agroforestry based on contextual clues, such as variety names or the presence of tree species.</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
