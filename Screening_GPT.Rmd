@@ -1,3 +1,4 @@
+---
 title: "Screening Agricultural Research Papers with AI"
 author: "Lolita Muller"
 date: "`r Sys.Date()`"
@@ -10,7 +11,7 @@ output:
     self_contained: true
 comments:
   utterances:
-
+---
 # Screening Agricultural Research Papers with AI
 
 This vignette demonstrates how to automate the screening of agricultural research papers using GPT-based AI models. The goal is to efficiently classify and filter research papers based on predefined inclusion/exclusion criteria, reducing manual workload and ensuring consistency in the selection process.
