@@ -5,11 +5,13 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     toc: true
-    toc_depth: 4
-    number_sections: true
-    code_folding: "hide"
-    
-
+    toc_float: true
+    code_folding: hide
+    includes:
+    self_contained: true
+comments:
+  utterances:
+    repo: ERAgriculture/AI
 ---
 
 # Tagging agreocological research papers with AI
