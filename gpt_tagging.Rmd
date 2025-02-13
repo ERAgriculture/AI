@@ -2,15 +2,13 @@
 title: "Tagging Agricultural Research Papers with AI"
 author: "Lolita Muller"
 date: "`r Sys.Date()`"
-format:
-  html:
+output:
+  html_document:
     toc: true
-    toc-depth: 4
-    toc-location: left
-    number-sections: true
-    code-fold: true  
-editor: visual
-self_contained: true
+    toc_depth: 4
+    number_sections: true
+    code_folding: "hide"
+
 ---
 
 # Tagging agreocological research papers with AI
