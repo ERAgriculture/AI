@@ -1,0 +1,72 @@
+---
+title: 'Using OpenAlex: A case for Agroecology in Latin America and the Caribbean'
+author:
+  - name: "Namita Joshi"
+    email: "n.joshi@cgiar.org"
+    orcid: "0000-0002-1623-6910"
+  - name: "Peter Steward"
+    email: "p.steward@cgiar.org"
+    orcid: "0000-0003-3985-4911"
+  - name: "Todd Rosenstock"
+    email: "t.rosenstock@cgiar.org"
+    orcid: "0000-0002-1958-9500"
+  - name: "Lolita Muller"
+    email: "l.muller@cgiar.org"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE,  # Temporarily set to TRUE for debugging
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r packages,include=F,eval=T,echo=F}
+if (!requireNamespace("pacman", quietly = TRUE)) {
+  install.packages("pacman")
+}
+pacman::p_load(
+  openalexR,data.table
+)
+
+```
+
+This vignette provides a reproducible example of how to harness OpenAlex for generating comprehensive search terms and evaluating the resulting references against established databases such as Web of Science (WoS) and Scopus. In this guide, we will:
+
+1. Introduce OpenAlex: Overview its features and explain its role in modern scholarly research.
+
+2. Generate Search Strings: Develop robust and reproducible search strategies tailored to your research needs.For this vingette, we will use the example of agroecology in Latin America and the Caribbean.
+
+3. Query OpenAlex: Demonstrate how to interact with the OpenAlex API to retrieve relevant references.
+
+4. Save References: Outline methods for efficiently storing and managing your retrieved data.
+
+5. Test Results Against WoS and Scopus
+
+# Introduction to OpenAlex
+OpenAlex is an open source platform that offers comprehensive, freely accessible information about research publications, authors, and institutions. Introduced in January 2022 by OurResearch, OpenAlex was developed as a successor to the now-discontinued Microsoft Academic Graph (MAG). Although it does not encompass every feature of MAG—for instance, patent data is not included—OpenAlex significantly expands on its predecessor’s scope.
+
+A key strength of OpenAlex is its open licensing model, which ensures that all data, code, and related tools are publicly available. This commitment to openness promotes transparency, reproducibility, and innovation in research practices. As a result, many academic institutions are increasingly turning to OpenAlex as a viable alternative to proprietary bibliometric tools. For example, Sorbonne University has recently transitioned from using traditional resources such as Web of Science to leveraging OpenAlex and other open-source solutions, in line with its broader policy of openness and sustainable research practices.
+
+Furthermore, OpenAlex incorporates advanced artificial intelligence techniques, including natural language processing and machine learning, to enhance the quality and relevance of its metadata. In some instances, these AI-driven methods leverage large language models to support tasks such as automatic classification, entity disambiguation, and semantic search. Such applications of AI help ensure that the platform remains a cutting-edge resource for scholarly research.
+
+This vignette will demonstrate how to generate search strings, query OpenAlex, and compare its outputs against other databases such as Web of Science and Scopus. Whether you are new to bibliometrics or seeking a more transparent and open approach to research evaluation, this guide provides a practical overview of OpenAlex and its growing significance in scholarly communication.
+
+
+
+### References
+Priem, J., Piwowar, H. and Orr, R., 2022. OpenAlex: A fully‐open index of scholarly works, authors, venues, institutions, and concepts, June 2022.
+
+Scheidsteger, T. and Haunschild, R., 2022. Comparison of metadata with relevance for bibliometrics between Microsoft Academic Graph and OpenAlex until 2020. arXiv preprint arXiv:2206.14168.
+
+Culbert, J., Hobert, A., Jahn, N., Haupka, N., Schmidt, M., Donner, P. and Mayr, P., 2024. Reference coverage analysis of OpenAlex compared to Web of Science and Scopus. arXiv preprint arXiv:2401.16359.
