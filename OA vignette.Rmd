@@ -17,54 +17,248 @@ output:
   html_document:
     toc: true
     toc_float: true
-    code_folding: hide
+    code_folding: show
     self_contained: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
+  collapse = FALSE,
   comment = "#>",
-  echo = FALSE,  # Temporarily set to TRUE for debugging
-  message = FALSE,
+  echo = TRUE,  # Temporarily set to TRUE for debugging
+  message = TRUE,
   warning = FALSE
 )
 ```
 
-```{r packages,include=F,eval=T,echo=F}
+This vignette provides a reproducible example of how to harness OpenAlex for generating comprehensive search terms and evaluating the resulting references against established databases such as Web of Science (WoS) and Scopus. In this guide, we will:
+
+1.  Introduce OpenAlex: Overview its features and explain its role in modern scholarly research.
+
+2.  Generate Search Strings: Develop robust and reproducible search strategies tailored to your research needs.For this vingette, we will use the example of agroecology in Latin America and the Caribbean.
+
+3.  Querying OpenAlex: Demonstrate how to interact with the OpenAlex API to retrieve relevant references.
+
+4.  Testing Results Against WoS and Scopus
+
+# Introduction to OpenAlex
+
+OpenAlex is an open source platform that offers comprehensive, freely accessible information about research publications, authors, and institutions. Introduced in January 2022 by OurResearch, OpenAlex was developed as a successor to the now-discontinued Microsoft Academic Graph (MAG). Although it does not encompass every feature of MAG---for instance, patent data is not included---OpenAlex significantly expands on its predecessor's scope (Priem et al., 2022).
+
+A key strength of OpenAlex is its open licensing model, which ensures that all data, code, and related tools are publicly available. This commitment to openness promotes transparency, reproducibility, and innovation in research practices (Priem et al., 2022). As a result, many academic institutions are increasingly turning to OpenAlex as a viable alternative to proprietary bibliometric tools. For example, Sorbonne University has recently transitioned from using traditional resources such as Web of Science to leveraging OpenAlex and other open-source solutions, in line with its broader policy of openness and sustainable research practices (Scheidsteger & Haunschild, 2022; Culbert et al., 2024)
+
+Furthermore, OpenAlex incorporates advanced artificial intelligence techniques, including natural language processing and machine learning, to enhance the quality and relevance of its metadata (Priem et al., 2022). In some instances, these AI-driven methods leverage large language models to support tasks such as automatic classification, entity disambiguation, and semantic search. Such applications of AI help ensure that the platform remains a cutting-edge resource for research.
+
+# Generate Search Strings
+
+This code is designed to construct a structured search query for OpenAlex by defining multiple categories of search terms and formatting them into a query string that follows the OpenAlex API syntax.
+
+**1.Load Required Packages**
+
+It first ensures that the required packages (openalexR, and data.table) are installed and loaded.
+
+```{r packages, include=TRUE, eval=TRUE, echo=TRUE}
 if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
 pacman::p_load(
-  openalexR,data.table
+  openalexR, data.table
+)
+
+
+```
+
+**2.Define Search Term Categories:**
+
+The code creates four vectors containing terms related to different aspects of the search:
+
+outcomes_terms: Terms related to impacts, benefits, and economic analysis.
+
+practices_terms: Terms related to different agroecological practices.
+
+product_terms: Terms referring to specific crops or livestock.
+
+region_terms: Terms referring to specific geographical locations.
+
+```{r define the search terms,include=T,eval=T,echo=T}
+# Define your search term vectors
+outcomes_terms <- c(
+  "Benefit-cost analysis", "Break-even period", "Economic valuation",
+  "Economic impact", "Net present value", "Payback period", "Willingness to pay",
+  "Gross margin","Kilograms per hectare","Cost",
+  "Climate change", "Risk assessment", "Vulnerability assessment",
+  "Adaptive management", "Community awareness", "Drought resistance","Indigenous knowledge",
+  "Changing climate","Flood resistance", "Soil fertility", "Soil degradation", 
+  "Biodiversity","Soil degradation","Yield loss cost","Revenue","Yield",
+  "Food security", "Water availability", "Water stress"
+)
+
+practices_terms <- c(
+  "Agroforestry", "Evergreen agriculture", "Farmer managed natural regeneration",
+  "Silvopastoral systems", "Alley cropping", "Crop rotation", "Cover cropping",
+  "Integrated pest management", "No tillage","Minimum tillage", "Soil conservation",
+  "Adapted cultivar","Crop diversification","Crop rotation","Green manure", 
+  "Water harvesting", "Managed grazing", "Irrigation","Residue retention",
+  "Rotational grazing", "Intensive grazing", "Biological pest control", "Managed grazing",
+  "Organic fertilizers","Short duration grazing","Strip grazing"
+)
+
+product_terms <- c(
+  "Maize", "Zea mays", "Common beans", "Phaseolus vulgaris", "Cattle", "Bos taurus",
+  "Bos indicus", "Bull", "Heifer", "Bovine", "Coffee", "Coffea arabica", "Coffea robusta")
+
+region_terms <- c(
+  "Belize", "Bolivia", "Brazil", "Colombia", "Costa Rica", "Cuba", "Dominica",
+  "Dominican Republic", "Ecuador", "El Salvador", "Grenada", "Guatemala",
+  "Guyana", "Haiti", "Honduras", "Jamaica", "Mexico", "Nicaragua", "Paraguay",
+  "Peru", "Saint Lucia", "Saint Vincent and the Grenadines", "Suriname",
+  "Venezuela", "Argentina", "Bahamas", "Barbados", "Chile", "Panama",
+  "Trinidad and Tobago", "Uruguay"
+)
+```
+
+**3.Format Terms for OpenAlex Query:**
+
+Each set of terms is wrapped in double quotes and joined using " OR " to follow OpenAlex's boolean search syntax.
+
+***What is a boolean?***
+
+A Boolean refers to a system of logic that operates with true/false values. In the context of search queries (like in OpenAlex/WoS/Scopus), Boolean logic allows us to combine multiple search terms using logical operators like:
+
+Common Boolean Operators:
+
+**AND** → All conditions must be met\
+*Example:* "climate change" AND "crop yield". This will return results only if they contain both terms.
+
+**OR** → Any condition can be met\
+*Example:* "wheat" OR "maize". This will return results if either term appears.
+
+**NOT** → Excludes specific terms\
+*Example:* "drought" NOT "irrigation". This will return results that contain "drought" but exclude "irrigation".
+
+**Using Parentheses ()** → To group logic properly\
+*Example:* ("climate adaptation" OR "drought resistance") AND "agriculture". Ensures that at least one of the grouped terms appears along with "agriculture".
+
+\*\*Using Quotes ""\*\* → To search for exact phrases\
+*Example:*"climate smart agriculture". This ensures the exact phrase is searched for rather than separate words.
+
+```{r creating booleans,include=T,eval=T,echo=T}
+# Wrap each term in quotes and join with OR
+outcomes_bool <- paste0('"', outcomes_terms, '"', collapse = " OR ")
+practices_bool <- paste0('"', practices_terms, '"', collapse = " OR ")
+region_bool   <- paste0('"', region_terms, '"', collapse = " OR ")
+product_bool   <- paste0('"', region_terms, '"', collapse = " OR ")
+
+```
+
+Construct the Final Search Query:
+
+The formatted terms are combined into a structured filter string that follows OpenAlex's API format:
+
+```{r combining the categories,include=T,eval=T,echo=T}
+# Combine the three groups into one filter string
+filter_string <- paste0(
+  "filter=title_and_abstract.search:(",
+  outcomes_bool, 
+  ") AND (",
+  practices_bool, 
+  ") AND (",
+  product_bool, 
+  ") AND (",
+  region_bool, 
+  ")"
 )
 
 ```
 
-This vignette provides a reproducible example of how to harness OpenAlex for generating comprehensive search terms and evaluating the resulting references against established databases such as Web of Science (WoS) and Scopus. In this guide, we will:
+**4.Building the final search string:**
 
-1. Introduce OpenAlex: Overview its features and explain its role in modern scholarly research.
+This section of the code constructs an OpenAlex API request, handles pagination, and retrieves all matching records.\
+`base_url` defines the OpenAlex API endpoint for retrieving academic works.\
+\
+`final_url` appends:\
+- `filter_string` → Adds the search criteria.\
+- `sort=relevance_score:desc` → Sorts results by relevance (descending).\
+- `per-page=200` → Requests 200 results per page (the API default is typically lower).
 
-2. Generate Search Strings: Develop robust and reproducible search strategies tailored to your research needs.For this vingette, we will use the example of agroecology in Latin America and the Caribbean.
+`cat()` prints the full request URL.
 
-3. Query OpenAlex: Demonstrate how to interact with the OpenAlex API to retrieve relevant references.
+```{r final search string,include=T,eval=T,echo=T}
+base_url <- "https://api.openalex.org/works?"
+# We add sorting and request 200 results per page (note the hyphen in per-page)
+final_url <- paste0(base_url, filter_string, "&sort=relevance_score:desc&per-page=200")
 
-4. Save References: Outline methods for efficiently storing and managing your retrieved data.
+# Do NOT URLencode the entire URL because that will encode the scheme, causing errors.
+cat("Final API URL:\n", final_url, "\n\n")
+```
 
-5. Test Results Against WoS and Scopus
+# Querying OpenAlex
 
-# Introduction to OpenAlex
-OpenAlex is an open source platform that offers comprehensive, freely accessible information about research publications, authors, and institutions. Introduced in January 2022 by OurResearch, OpenAlex was developed as a successor to the now-discontinued Microsoft Academic Graph (MAG). Although it does not encompass every feature of MAG—for instance, patent data is not included—OpenAlex significantly expands on its predecessor’s scope.
+**1.Implementing Cursor-Based Pagination**
 
-A key strength of OpenAlex is its open licensing model, which ensures that all data, code, and related tools are publicly available. This commitment to openness promotes transparency, reproducibility, and innovation in research practices. As a result, many academic institutions are increasingly turning to OpenAlex as a viable alternative to proprietary bibliometric tools. For example, Sorbonne University has recently transitioned from using traditional resources such as Web of Science to leveraging OpenAlex and other open-source solutions, in line with its broader policy of openness and sustainable research practices.
+The OpenAlex API does not return all results at once. Instead, it provides a cursor-based pagination system where each request retrieves a "page" of results and provides a cursor for fetching the next page.
 
-Furthermore, OpenAlex incorporates advanced artificial intelligence techniques, including natural language processing and machine learning, to enhance the quality and relevance of its metadata. In some instances, these AI-driven methods leverage large language models to support tasks such as automatic classification, entity disambiguation, and semantic search. Such applications of AI help ensure that the platform remains a cutting-edge resource for scholarly research.
+The function fetch_all_hits(`start_url`) automates retrieving data from the OpenAlex API using cursor-based pagination. It starts with an initial cursor (`"*"`), encodes it, and appends it to the request URL. The function then repeatedly sends requests (`oa_request()`), converts responses into a data frame (`oa2df()`), and stores each page in `all_hits`. If no results are returned, the loop terminates. It retrieves the next cursor (`attr(hits_df,"next_cursor")`) to fetch subsequent pages until no new cursor is available. Finally, all pages are combined into a single table using `data.table::rbindlist()`, ensuring complete data retrieval.
 
-This vignette will demonstrate how to generate search strings, query OpenAlex, and compare its outputs against other databases such as Web of Science and Scopus. Whether you are new to bibliometrics or seeking a more transparent and open approach to research evaluation, this guide provides a practical overview of OpenAlex and its growing significance in scholarly communication.
+```{r cursor-based pagination,include=T,eval=T,echo=T}
+fetch_all_hits <- function(start_url) {
+  all_hits <- list()
+  cursor <- "*"  # initial cursor value
+  
+  repeat {
+    # URL-encode only the cursor value (so "*" becomes "%2A")
+    cursor_encoded <- URLencode(cursor, reserved = TRUE)
+    current_url <- paste0(start_url, "&cursor=", cursor_encoded)
+    message("Requesting: ", current_url)
+    
+    # Make the API request
+    res <- oa_request(query_url = current_url)
+    hits_df <- oa2df(res, entity = "works")
+    
+    # If no records returned, exit the loop
+    if (nrow(hits_df) == 0) break
+    
+    all_hits[[length(all_hits) + 1]] <- hits_df
+    
+    # Get the next cursor from the attributes
+    new_cursor <- attr(hits_df, "next_cursor")
+    if (is.null(new_cursor) || new_cursor == cursor) break
+    
+    cursor <- new_cursor
+    message("Fetched page ", length(all_hits), " with ", nrow(hits_df), " records.")
+  }
+  
+  data.table::rbindlist(all_hits, fill = TRUE)
+}
+```
 
+**2.Executing the Query and Retrieving Results**
 
+This starts downloading OpenAlex records and saves it in a data frame
+
+```{r fetching results,include=T,eval=F,echo=T}
+results <- fetch_all_hits(final_url)
+message("Total records retrieved: ", nrow(results))
+```
+
+**3.Saving the records in a CSV (optional step)**
+
+Here, we save the references from a data table to a csv. Exploring the column names of the results, by calling `colnames(results)` , we are able to choose which columns we are interesting in. Here, we selected id (unique identifier), display_name (the title of the paper), doi, url, language, relevance_score (indicates how well the paper matches the search query), type (categorizes the publication format), publication_date and abstract. These fields will be using in the next step of the work flow - tagging with GPT
+
+```{r saving as a csv,include=T,eval=F,echo=T}
+if (nrow(results) > 0) {
+  results <- results[, .(id, display_name, doi, url, relevance_score, language, type, publication_date,ab)]
+  fwrite(results, "OA outputs/openalex_results.csv")
+  message("Results saved to 'openalex_results.csv'.")
+} else {
+  message("No records found.")
+}
+```
+
+# Testing results against WoS and Scopus
 
 ### References
+
 Priem, J., Piwowar, H. and Orr, R., 2022. OpenAlex: A fully‐open index of scholarly works, authors, venues, institutions, and concepts, June 2022.
 
 Scheidsteger, T. and Haunschild, R., 2022. Comparison of metadata with relevance for bibliometrics between Microsoft Academic Graph and OpenAlex until 2020. arXiv preprint arXiv:2206.14168.

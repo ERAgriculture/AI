@@ -1596,11 +1596,9 @@ modern scholarly research.</p></li>
 strategies tailored to your research needs.For this vingette, we will
 use the example of agroecology in Latin America and the
 Caribbean.</p></li>
-<li><p>Query OpenAlex: Demonstrate how to interact with the OpenAlex API
-to retrieve relevant references.</p></li>
-<li><p>Save References: Outline methods for efficiently storing and
-managing your retrieved data.</p></li>
-<li><p>Test Results Against WoS and Scopus</p></li>
+<li><p>Querying OpenAlex: Demonstrate how to interact with the OpenAlex
+API to retrieve relevant references.</p></li>
+<li><p>Testing Results Against WoS and Scopus</p></li>
 </ol>
 <div id="introduction-to-openalex" class="section level1">
 <h1>Introduction to OpenAlex</h1>
@@ -1610,30 +1608,223 @@ institutions. Introduced in January 2022 by OurResearch, OpenAlex was
 developed as a successor to the now-discontinued Microsoft Academic
 Graph (MAG). Although it does not encompass every feature of MAG—for
 instance, patent data is not included—OpenAlex significantly expands on
-its predecessor’s scope.</p>
+its predecessor’s scope (Priem et al., 2022).</p>
 <p>A key strength of OpenAlex is its open licensing model, which ensures
 that all data, code, and related tools are publicly available. This
 commitment to openness promotes transparency, reproducibility, and
-innovation in research practices. As a result, many academic
-institutions are increasingly turning to OpenAlex as a viable
+innovation in research practices (Priem et al., 2022). As a result, many
+academic institutions are increasingly turning to OpenAlex as a viable
 alternative to proprietary bibliometric tools. For example, Sorbonne
 University has recently transitioned from using traditional resources
 such as Web of Science to leveraging OpenAlex and other open-source
 solutions, in line with its broader policy of openness and sustainable
-research practices.</p>
+research practices (Scheidsteger &amp; Haunschild, 2022; Culbert et al.,
+2024)</p>
 <p>Furthermore, OpenAlex incorporates advanced artificial intelligence
 techniques, including natural language processing and machine learning,
-to enhance the quality and relevance of its metadata. In some instances,
-these AI-driven methods leverage large language models to support tasks
-such as automatic classification, entity disambiguation, and semantic
-search. Such applications of AI help ensure that the platform remains a
-cutting-edge resource for scholarly research.</p>
-<p>This vignette will demonstrate how to generate search strings, query
-OpenAlex, and compare its outputs against other databases such as Web of
-Science and Scopus. Whether you are new to bibliometrics or seeking a
-more transparent and open approach to research evaluation, this guide
-provides a practical overview of OpenAlex and its growing significance
-in scholarly communication.</p>
+to enhance the quality and relevance of its metadata (Priem et al.,
+2022). In some instances, these AI-driven methods leverage large
+language models to support tasks such as automatic classification,
+entity disambiguation, and semantic search. Such applications of AI help
+ensure that the platform remains a cutting-edge resource for
+research.</p>
+</div>
+<div id="generate-search-strings" class="section level1">
+<h1>Generate Search Strings</h1>
+<p>This code is designed to construct a structured search query for
+OpenAlex by defining multiple categories of search terms and formatting
+them into a query string that follows the OpenAlex API syntax.</p>
+<p><strong>1.Load Required Packages</strong></p>
+<p>It first ensures that the required packages (openalexR, and
+data.table) are installed and loaded.</p>
+<pre class="r"><code>if (!requireNamespace(&quot;pacman&quot;, quietly = TRUE)) {
+  install.packages(&quot;pacman&quot;)
+}
+pacman::p_load(
+  openalexR, data.table
+)</code></pre>
+<p><strong>2.Define Search Term Categories:</strong></p>
+<p>The code creates four vectors containing terms related to different
+aspects of the search:</p>
+<p>outcomes_terms: Terms related to impacts, benefits, and economic
+analysis.</p>
+<p>practices_terms: Terms related to different agroecological
+practices.</p>
+<p>product_terms: Terms referring to specific crops or livestock.</p>
+<p>region_terms: Terms referring to specific geographical locations.</p>
+<pre class="r"><code># Define your search term vectors
+outcomes_terms &lt;- c(
+  &quot;Benefit-cost analysis&quot;, &quot;Break-even period&quot;, &quot;Economic valuation&quot;,
+  &quot;Economic impact&quot;, &quot;Net present value&quot;, &quot;Payback period&quot;, &quot;Willingness to pay&quot;,
+  &quot;Gross margin&quot;,&quot;Kilograms per hectare&quot;,&quot;Cost&quot;,
+  &quot;Climate change&quot;, &quot;Risk assessment&quot;, &quot;Vulnerability assessment&quot;,
+  &quot;Adaptive management&quot;, &quot;Community awareness&quot;, &quot;Drought resistance&quot;,&quot;Indigenous knowledge&quot;,
+  &quot;Changing climate&quot;,&quot;Flood resistance&quot;, &quot;Soil fertility&quot;, &quot;Soil degradation&quot;, 
+  &quot;Biodiversity&quot;,&quot;Soil degradation&quot;,&quot;Yield loss cost&quot;,&quot;Revenue&quot;,&quot;Yield&quot;,
+  &quot;Food security&quot;, &quot;Water availability&quot;, &quot;Water stress&quot;
+)
+
+practices_terms &lt;- c(
+  &quot;Agroforestry&quot;, &quot;Evergreen agriculture&quot;, &quot;Farmer managed natural regeneration&quot;,
+  &quot;Silvopastoral systems&quot;, &quot;Alley cropping&quot;, &quot;Crop rotation&quot;, &quot;Cover cropping&quot;,
+  &quot;Integrated pest management&quot;, &quot;No tillage&quot;,&quot;Minimum tillage&quot;, &quot;Soil conservation&quot;,
+  &quot;Adapted cultivar&quot;,&quot;Crop diversification&quot;,&quot;Crop rotation&quot;,&quot;Green manure&quot;, 
+  &quot;Water harvesting&quot;, &quot;Managed grazing&quot;, &quot;Irrigation&quot;,&quot;Residue retention&quot;,
+  &quot;Rotational grazing&quot;, &quot;Intensive grazing&quot;, &quot;Biological pest control&quot;, &quot;Managed grazing&quot;,
+  &quot;Organic fertilizers&quot;,&quot;Short duration grazing&quot;,&quot;Strip grazing&quot;
+)
+
+product_terms &lt;- c(
+  &quot;Maize&quot;, &quot;Zea mays&quot;, &quot;Common beans&quot;, &quot;Phaseolus vulgaris&quot;, &quot;Cattle&quot;, &quot;Bos taurus&quot;,
+  &quot;Bos indicus&quot;, &quot;Bull&quot;, &quot;Heifer&quot;, &quot;Bovine&quot;, &quot;Coffee&quot;, &quot;Coffea arabica&quot;, &quot;Coffea robusta&quot;)
+
+region_terms &lt;- c(
+  &quot;Belize&quot;, &quot;Bolivia&quot;, &quot;Brazil&quot;, &quot;Colombia&quot;, &quot;Costa Rica&quot;, &quot;Cuba&quot;, &quot;Dominica&quot;,
+  &quot;Dominican Republic&quot;, &quot;Ecuador&quot;, &quot;El Salvador&quot;, &quot;Grenada&quot;, &quot;Guatemala&quot;,
+  &quot;Guyana&quot;, &quot;Haiti&quot;, &quot;Honduras&quot;, &quot;Jamaica&quot;, &quot;Mexico&quot;, &quot;Nicaragua&quot;, &quot;Paraguay&quot;,
+  &quot;Peru&quot;, &quot;Saint Lucia&quot;, &quot;Saint Vincent and the Grenadines&quot;, &quot;Suriname&quot;,
+  &quot;Venezuela&quot;, &quot;Argentina&quot;, &quot;Bahamas&quot;, &quot;Barbados&quot;, &quot;Chile&quot;, &quot;Panama&quot;,
+  &quot;Trinidad and Tobago&quot;, &quot;Uruguay&quot;
+)</code></pre>
+<p><strong>3.Format Terms for OpenAlex Query:</strong></p>
+<p>Each set of terms is wrapped in double quotes and joined using ” OR ”
+to follow OpenAlex’s boolean search syntax.</p>
+<p><strong><em>What is a boolean?</em></strong></p>
+<p>A Boolean refers to a system of logic that operates with true/false
+values. In the context of search queries (like in OpenAlex/WoS/Scopus),
+Boolean logic allows us to combine multiple search terms using logical
+operators like:</p>
+<p>Common Boolean Operators:</p>
+<p><strong>AND</strong> → All conditions must be met<br />
+<em>Example:</em> “climate change” AND “crop yield”. This will return
+results only if they contain both terms.</p>
+<p><strong>OR</strong> → Any condition can be met<br />
+<em>Example:</em> “wheat” OR “maize”. This will return results if either
+term appears.</p>
+<p><strong>NOT</strong> → Excludes specific terms<br />
+<em>Example:</em> “drought” NOT “irrigation”. This will return results
+that contain “drought” but exclude “irrigation”.</p>
+<p><strong>Using Parentheses ()</strong> → To group logic properly<br />
+<em>Example:</em> (“climate adaptation” OR “drought resistance”) AND
+“agriculture”. Ensures that at least one of the grouped terms appears
+along with “agriculture”.</p>
+<p>**Using Quotes ““** → To search for exact phrases<br />
+<em>Example:</em>”climate smart agriculture”. This ensures the exact
+phrase is searched for rather than separate words.</p>
+<pre class="r"><code># Wrap each term in quotes and join with OR
+outcomes_bool &lt;- paste0(&#39;&quot;&#39;, outcomes_terms, &#39;&quot;&#39;, collapse = &quot; OR &quot;)
+practices_bool &lt;- paste0(&#39;&quot;&#39;, practices_terms, &#39;&quot;&#39;, collapse = &quot; OR &quot;)
+region_bool   &lt;- paste0(&#39;&quot;&#39;, region_terms, &#39;&quot;&#39;, collapse = &quot; OR &quot;)
+product_bool   &lt;- paste0(&#39;&quot;&#39;, region_terms, &#39;&quot;&#39;, collapse = &quot; OR &quot;)</code></pre>
+<p>Construct the Final Search Query:</p>
+<p>The formatted terms are combined into a structured filter string that
+follows OpenAlex’s API format:</p>
+<pre class="r"><code># Combine the three groups into one filter string
+filter_string &lt;- paste0(
+  &quot;filter=title_and_abstract.search:(&quot;,
+  outcomes_bool, 
+  &quot;) AND (&quot;,
+  practices_bool, 
+  &quot;) AND (&quot;,
+  product_bool, 
+  &quot;) AND (&quot;,
+  region_bool, 
+  &quot;)&quot;
+)</code></pre>
+<p><strong>4.Building the final search string:</strong></p>
+<p>This section of the code constructs an OpenAlex API request, handles
+pagination, and retrieves all matching records.<br />
+<code>base_url</code> defines the OpenAlex API endpoint for retrieving
+academic works.<br />
+<br />
+<code>final_url</code> appends:<br />
+- <code>filter_string</code> → Adds the search criteria.<br />
+- <code>sort=relevance_score:desc</code> → Sorts results by relevance
+(descending).<br />
+- <code>per-page=200</code> → Requests 200 results per page (the API
+default is typically lower).</p>
+<p><code>cat()</code> prints the full request URL.</p>
+<pre class="r"><code>base_url &lt;- &quot;https://api.openalex.org/works?&quot;
+# We add sorting and request 200 results per page (note the hyphen in per-page)
+final_url &lt;- paste0(base_url, filter_string, &quot;&amp;sort=relevance_score:desc&amp;per-page=200&quot;)
+
+# Do NOT URLencode the entire URL because that will encode the scheme, causing errors.
+cat(&quot;Final API URL:\n&quot;, final_url, &quot;\n\n&quot;)</code></pre>
+<pre><code>#&gt; Final API URL:
+#&gt;  https://api.openalex.org/works?filter=title_and_abstract.search:(&quot;Benefit-cost analysis&quot; OR &quot;Break-even period&quot; OR &quot;Economic valuation&quot; OR &quot;Economic impact&quot; OR &quot;Net present value&quot; OR &quot;Payback period&quot; OR &quot;Willingness to pay&quot; OR &quot;Gross margin&quot; OR &quot;Kilograms per hectare&quot; OR &quot;Cost&quot; OR &quot;Climate change&quot; OR &quot;Risk assessment&quot; OR &quot;Vulnerability assessment&quot; OR &quot;Adaptive management&quot; OR &quot;Community awareness&quot; OR &quot;Drought resistance&quot; OR &quot;Indigenous knowledge&quot; OR &quot;Changing climate&quot; OR &quot;Flood resistance&quot; OR &quot;Soil fertility&quot; OR &quot;Soil degradation&quot; OR &quot;Biodiversity&quot; OR &quot;Soil degradation&quot; OR &quot;Yield loss cost&quot; OR &quot;Revenue&quot; OR &quot;Yield&quot; OR &quot;Food security&quot; OR &quot;Water availability&quot; OR &quot;Water stress&quot;) AND (&quot;Agroforestry&quot; OR &quot;Evergreen agriculture&quot; OR &quot;Farmer managed natural regeneration&quot; OR &quot;Silvopastoral systems&quot; OR &quot;Alley cropping&quot; OR &quot;Crop rotation&quot; OR &quot;Cover cropping&quot; OR &quot;Integrated pest management&quot; OR &quot;No tillage&quot; OR &quot;Minimum tillage&quot; OR &quot;Soil conservation&quot; OR &quot;Adapted cultivar&quot; OR &quot;Crop diversification&quot; OR &quot;Crop rotation&quot; OR &quot;Green manure&quot; OR &quot;Water harvesting&quot; OR &quot;Managed grazing&quot; OR &quot;Irrigation&quot; OR &quot;Residue retention&quot; OR &quot;Rotational grazing&quot; OR &quot;Intensive grazing&quot; OR &quot;Biological pest control&quot; OR &quot;Managed grazing&quot; OR &quot;Organic fertilizers&quot; OR &quot;Short duration grazing&quot; OR &quot;Strip grazing&quot;) AND (&quot;Belize&quot; OR &quot;Bolivia&quot; OR &quot;Brazil&quot; OR &quot;Colombia&quot; OR &quot;Costa Rica&quot; OR &quot;Cuba&quot; OR &quot;Dominica&quot; OR &quot;Dominican Republic&quot; OR &quot;Ecuador&quot; OR &quot;El Salvador&quot; OR &quot;Grenada&quot; OR &quot;Guatemala&quot; OR &quot;Guyana&quot; OR &quot;Haiti&quot; OR &quot;Honduras&quot; OR &quot;Jamaica&quot; OR &quot;Mexico&quot; OR &quot;Nicaragua&quot; OR &quot;Paraguay&quot; OR &quot;Peru&quot; OR &quot;Saint Lucia&quot; OR &quot;Saint Vincent and the Grenadines&quot; OR &quot;Suriname&quot; OR &quot;Venezuela&quot; OR &quot;Argentina&quot; OR &quot;Bahamas&quot; OR &quot;Barbados&quot; OR &quot;Chile&quot; OR &quot;Panama&quot; OR &quot;Trinidad and Tobago&quot; OR &quot;Uruguay&quot;) AND (&quot;Belize&quot; OR &quot;Bolivia&quot; OR &quot;Brazil&quot; OR &quot;Colombia&quot; OR &quot;Costa Rica&quot; OR &quot;Cuba&quot; OR &quot;Dominica&quot; OR &quot;Dominican Republic&quot; OR &quot;Ecuador&quot; OR &quot;El Salvador&quot; OR &quot;Grenada&quot; OR &quot;Guatemala&quot; OR &quot;Guyana&quot; OR &quot;Haiti&quot; OR &quot;Honduras&quot; OR &quot;Jamaica&quot; OR &quot;Mexico&quot; OR &quot;Nicaragua&quot; OR &quot;Paraguay&quot; OR &quot;Peru&quot; OR &quot;Saint Lucia&quot; OR &quot;Saint Vincent and the Grenadines&quot; OR &quot;Suriname&quot; OR &quot;Venezuela&quot; OR &quot;Argentina&quot; OR &quot;Bahamas&quot; OR &quot;Barbados&quot; OR &quot;Chile&quot; OR &quot;Panama&quot; OR &quot;Trinidad and Tobago&quot; OR &quot;Uruguay&quot;)&amp;sort=relevance_score:desc&amp;per-page=200</code></pre>
+</div>
+<div id="querying-openalex" class="section level1">
+<h1>Querying OpenAlex</h1>
+<p><strong>1.Implementing Cursor-Based Pagination</strong></p>
+<p>The OpenAlex API does not return all results at once. Instead, it
+provides a cursor-based pagination system where each request retrieves a
+“page” of results and provides a cursor for fetching the next page.</p>
+<p>The function fetch_all_hits(<code>start_url</code>) automates
+retrieving data from the OpenAlex API using cursor-based pagination. It
+starts with an initial cursor (<code>&quot;*&quot;</code>), encodes it, and
+appends it to the request URL. The function then repeatedly sends
+requests (<code>oa_request()</code>), converts responses into a data
+frame (<code>oa2df()</code>), and stores each page in
+<code>all_hits</code>. If no results are returned, the loop terminates.
+It retrieves the next cursor (<code>attr(hits_df,&quot;next_cursor&quot;)</code>)
+to fetch subsequent pages until no new cursor is available. Finally, all
+pages are combined into a single table using
+<code>data.table::rbindlist()</code>, ensuring complete data
+retrieval.</p>
+<pre class="r"><code>fetch_all_hits &lt;- function(start_url) {
+  all_hits &lt;- list()
+  cursor &lt;- &quot;*&quot;  # initial cursor value
+  
+  repeat {
+    # URL-encode only the cursor value (so &quot;*&quot; becomes &quot;%2A&quot;)
+    cursor_encoded &lt;- URLencode(cursor, reserved = TRUE)
+    current_url &lt;- paste0(start_url, &quot;&amp;cursor=&quot;, cursor_encoded)
+    message(&quot;Requesting: &quot;, current_url)
+    
+    # Make the API request
+    res &lt;- oa_request(query_url = current_url)
+    hits_df &lt;- oa2df(res, entity = &quot;works&quot;)
+    
+    # If no records returned, exit the loop
+    if (nrow(hits_df) == 0) break
+    
+    all_hits[[length(all_hits) + 1]] &lt;- hits_df
+    
+    # Get the next cursor from the attributes
+    new_cursor &lt;- attr(hits_df, &quot;next_cursor&quot;)
+    if (is.null(new_cursor) || new_cursor == cursor) break
+    
+    cursor &lt;- new_cursor
+    message(&quot;Fetched page &quot;, length(all_hits), &quot; with &quot;, nrow(hits_df), &quot; records.&quot;)
+  }
+  
+  data.table::rbindlist(all_hits, fill = TRUE)
+}</code></pre>
+<p><strong>2.Executing the Query and Retrieving Results</strong></p>
+<p>This starts downloading OpenAlex records and saves it in a data
+frame</p>
+<pre class="r"><code>results &lt;- fetch_all_hits(final_url)
+message(&quot;Total records retrieved: &quot;, nrow(results))</code></pre>
+<p><strong>3.Saving the records in a CSV (optional step)</strong></p>
+<p>Here, we save the references from a data table to a csv. Exploring
+the column names of the results, by calling
+<code>colnames(results)</code> , we are able to choose which columns we
+are interesting in. Here, we selected id (unique identifier),
+display_name (the title of the paper), doi, url, language,
+relevance_score (indicates how well the paper matches the search query),
+type (categorizes the publication format), publication_date and
+abstract. These fields will be using in the next step of the work flow -
+tagging with GPT</p>
+<pre class="r"><code>if (nrow(results) &gt; 0) {
+  results &lt;- results[, .(id, display_name, doi, url, relevance_score, language, type, publication_date,ab)]
+  fwrite(results, &quot;OA outputs/openalex_results.csv&quot;)
+  message(&quot;Results saved to &#39;openalex_results.csv&#39;.&quot;)
+} else {
+  message(&quot;No records found.&quot;)
+}</code></pre>
+</div>
+<div id="testing-results-against-wos-and-scopus" class="section level1">
+<h1>Testing results against WoS and Scopus</h1>
 <div id="references" class="section level3">
 <h3>References</h3>
 <p>Priem, J., Piwowar, H. and Orr, R., 2022. OpenAlex: A fully‐open
@@ -1685,7 +1876,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
+  window.initializeCodeFolding("show" === "show");
 });
 </script>
 

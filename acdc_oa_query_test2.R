@@ -124,3 +124,9 @@ if (nrow(results) > 0) {
 
 system("gzip 'OA outputs/openalex_results.csv'")
 
+
+###############################################
+# 6. Testing the Results
+###############################################
+
+
