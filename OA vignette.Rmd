@@ -62,7 +62,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
 pacman::p_load(
-  openalexR, data.table
+  openalexR, data.table,readxl,dplyr,ggplot2, plotly
 )
 
 
@@ -237,8 +237,9 @@ fetch_all_hits <- function(start_url) {
 This starts downloading OpenAlex records and saves it in a data frame
 
 ```{r fetching results,include=T,eval=F,echo=T}
-results <- fetch_all_hits(final_url)
+oa_results <- fetch_all_hits(final_url)
 message("Total records retrieved: ", nrow(results))
+
 ```
 
 **3.Saving the records in a CSV (optional step)**
@@ -246,8 +247,8 @@ message("Total records retrieved: ", nrow(results))
 Here, we save the references from a data table to a csv. Exploring the column names of the results, by calling `colnames(results)` , we are able to choose which columns we are interesting in. Here, we selected id (unique identifier), display_name (the title of the paper), doi, url, language, relevance_score (indicates how well the paper matches the search query), type (categorizes the publication format), publication_date and abstract. These fields will be using in the next step of the work flow - tagging with GPT
 
 ```{r saving as a csv,include=T,eval=F,echo=T}
-if (nrow(results) > 0) {
-  results <- results[, .(id, display_name, doi, url, relevance_score, language, type, publication_date,ab)]
+if (nrow(oa_results) > 0) {
+  oa_results <- oa_results[, .(id, display_name, doi, url, relevance_score, language, type, publication_date,ab)]
   fwrite(results, "OA outputs/openalex_results.csv")
   message("Results saved to 'openalex_results.csv'.")
 } else {
@@ -256,6 +257,50 @@ if (nrow(results) > 0) {
 ```
 
 # Testing results against WoS and Scopus
+```{r comparing WoS and OA,include=T,eval=T,echo=T}
+
+wos <- read_excel("OA docs/WoS references.xls")
+
+oa_results <- oa_results %>% mutate(doi = tolower(doi))
+wos <- wos %>% mutate(DOI = tolower(DOI))
+
+# ---------------------------
+# 3. Identify matches
+# ---------------------------
+# Create subsets for matched and OA-only papers
+both <- oa_results %>% filter(doi %in% wos$DOI)
+oa_only <- oa_results %>% filter(!(doi %in% wos$DOI))
+wos_only <- wos %>% filter(!(DOI %in% oa_results$doi))
+
+# Print a summary table for your records
+summary_table <- data.frame(
+  Category = c("OpenAlex Only", "WoS Only", "Both"),
+  Count = c(nrow(oa_only), nrow(wos_only), nrow(both))
+)
+print(summary_table)
+```
+
+```{r plotting oa and wos,include=T,eval=T,echo=T}
+p <- ggplot() +
+  geom_histogram(data = oa_only,
+                 aes(x = relevance_score),
+                 binwidth = 1,
+                 fill = "dodgerblue", alpha = 0.7, position = "identity") +
+  geom_histogram(data = both,
+                 aes(x = relevance_score),
+                 binwidth = 1,
+                 fill = "seagreen", alpha = 0.7, position = "identity") +
+  coord_cartesian(xlim = c(0, 200), ylim = c(0,750)) +
+  labs(title = "Distribution of Relevance Scores (80-200)",
+       subtitle = "OpenAlex Only (blue) vs. Matched in WoS (green) [Log Scale]",
+       x = "Relevance Score",
+       y = "Number of Papers (log scale)") +
+  theme_minimal()
+
+# Convert the ggplot object to an interactive Plotly object
+ggplotly(p)
+
+```
 
 ### References
 
