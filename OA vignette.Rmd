@@ -257,9 +257,26 @@ if (nrow(oa_results) > 0) {
 ```
 
 # Testing results against WoS and Scopus
-```{r comparing WoS and OA,include=T,eval=T,echo=T}
+
+### **Description of the Matching Process**
+
+We conducted a comparison between **OpenAlex** and **Web of Science (WoS)** results to determine the overlap between the two databases. The process involved multiple steps, from constructing a search query to matching records based on unique identifiers (DOIs). Below is an outline of our approach:
+
+| **Step**                                   | **Description**                                                                                                                                                                                       |
+|----------------|--------------------------------------------------------|
+| **1. Translating the Query to WoS Format** | The original search query was converted into a format compatible with Web of Science to retrieve relevant research articles. This was retrieved and downloaded from the Web of Science web interface. |
+| **2. Extracting DOIs**                     | From both datasets, the DOI (Digital Object Identifier) was extracted as a unique identifier for each record. This allowed us to perform exact matches between the two databases.                     |
+| **3. Standardizing DOIs**                  | To ensure consistency, DOIs were converted to lowercase, and unnecessary prefixes (e.g., [`https://doi.org/`](https://doi.org/)) were removed before performing the matching.                         |
+| **4. Matching Process**                    | We determined how many DOIs from OpenAlex were also present in WoS by checking for exact matches. We categorized the results as follows:                                                              |
+| **5. Visualization of Results**            | A summary table and a histogram were generated to illustrate the overlap and distribution of relevance scores for matched and unmatched papers.                                                       |
+
+The table below presents the number of records found exclusively in each database and those that overlapped.These numbers indicate that while a significant portion of the papers appear exclusively in OpenAlex, a subset of 1,762 papers were found in both OpenAlex and Web of Science.
+
+```{r comparing WoS and OA,include=TRUE, eval=TRUE, echo=FALSE}
 
 wos <- read_excel("OA docs/WoS references.xls")
+load("OA docs/oa_results.RData")
+
 
 oa_results <- oa_results %>% mutate(doi = tolower(doi))
 wos <- wos %>% mutate(DOI = tolower(DOI))
@@ -280,7 +297,27 @@ summary_table <- data.frame(
 print(summary_table)
 ```
 
-```{r plotting oa and wos,include=T,eval=T,echo=T}
+The histogram above represents the distribution of relevance scores for research papers found in OpenAlex, with an overlay of papers that were also found in Web of Science (WoS).
+
+Blue bars represent papers that are only in OpenAlex, while green bars represent papers that appear in both OpenAlex and WoS.
+
+The relevance score, calculated by OpenAlex, ranks documents based on how closely they match the given search terms, with higher scores indicating greater relevance. OpenAlex computes these scores using text matching algorithms that assess how well a paper's metadata (title, abstract, keywords) aligns with the search query. Factors influencing relevance include exact match strength (higher weights for papers with exact search term matches in titles/abstracts), keyword frequency (more frequent occurrences improve ranking) and field of study weighting (papers in related fields may be ranked higher). This system helps prioritize the most important papers in the dataset.
+
+***Key Observations from the Plot***
+
+*Most Papers Have Low Relevance Scores:*
+
+The majority of papers within OpenAlex results have relevance scores concentrated below 50, with a steep decline as the scores increase. A very high number of papers are clustered near low relevance scores (0--10). \
+\
+*Matched Papers (WoS & OpenAlex) Also Follow This Distribution:*
+
+Papers found in both OpenAlex and WoS (green) are mostly concentrated in the low relevance range, following the same pattern as OpenAlex-only papers. This suggests that WoS matches are not necessarily the highest-ranked papers in OpenAlex but are distributed across different relevance levels.
+
+*Sparse High-Relevance Papers:*
+
+Very few papers have a relevance score above 50. This suggests that only a small fraction of articles are extremely relevant to the exact search terms used.
+
+```{r plotting oa and wos,include=TRUE, eval=TRUE, echo=FALSE}
 p <- ggplot() +
   geom_histogram(data = oa_only,
                  aes(x = relevance_score),
@@ -291,16 +328,18 @@ p <- ggplot() +
                  binwidth = 1,
                  fill = "seagreen", alpha = 0.7, position = "identity") +
   coord_cartesian(xlim = c(0, 200), ylim = c(0,750)) +
-  labs(title = "Distribution of Relevance Scores (80-200)",
-       subtitle = "OpenAlex Only (blue) vs. Matched in WoS (green) [Log Scale]",
+  labs(title = "Distribution of Relevance Scores",
+       subtitle = "OpenAlex Only (blue) vs. Matched in WoS (green)",
        x = "Relevance Score",
-       y = "Number of Papers (log scale)") +
+       y = "Number of Papers") +
   theme_minimal()
 
 # Convert the ggplot object to an interactive Plotly object
 ggplotly(p)
 
 ```
+
+# Limitations of OpenAlex
 
 ### References
 
