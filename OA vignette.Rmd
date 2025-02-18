@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette provides a reproducible example of how to harness OpenAlex for generating comprehensive search terms and evaluating the resulting references against established databases such as Web of Science (WoS) and Scopus. In this guide, we will:
+This vignette provides a reproducible example of how to harness OpenAlex for generating comprehensive search terms and evaluating the resulting references against established databases such as Web of Science (WoS) and Scopus. In this vignette, we will:
 
 1.  Introduce OpenAlex: Overview its features and explain its role in modern scholarly research.
 
@@ -339,7 +339,29 @@ ggplotly(p)
 
 ```
 
-# Limitations of OpenAlex
+# Limitations of the OpenAlex API
+
+#### **✅ Benefits of OpenAlex API**
+
+1.  **Free and Open Access** -- OpenAlex provides a freely accessible, open-source alternative to bibliographic databases like Web of Science and Scopus, allowing researchers to use it without paywalls.
+
+2.  **Comprehensive Coverage** -- It aggregates data from multiple sources, including journals, preprints, and institutional repositories, making it a rich resource for bibliometric analysis.
+
+3.  **Relevance Scoring** -- OpenAlex provides a relevance score to help users identify the most relevant publications for a given search query.
+
+4.  **Dynamic and Continuously Updated** -- Unlike static bibliographic databases, OpenAlex continuously updates its records, pulling in new research outputs in real-time.
+
+#### **⚠️ Limitations of OpenAlex API**
+
+1.  **Strict Character Limit on Search Queries** -- One of OpenAlex's biggest drawbacks is its character limit on search strings, restricting complex queries with many Boolean operators. This limitation makes it difficult to conduct highly specific, detailed searches similar to Web of Science or Scopus.
+
+2.  **Limited Peer-Reviewed Filtering** -- Unlike WoS or Scopus, OpenAlex does not have a built-in peer-reviewed filter, meaning some search results may include preprints and other non-peer-reviewed content.
+
+3.  **Fewer Advanced Search Features** -- While OpenAlex supports Boolean searches, its query syntax is not as advanced or precise as other databases, potentially leading to broader or less refined results.
+
+4.  **Potentially Inconsistent Metadata** -- Since OpenAlex pulls data from various sources, there may be discrepancies in metadata (DOI formats, affiliations, journal names, etc.), requiring additional cleaning for high-quality bibliometric analysis. This may cause duplication of references and requires a thorough de-duplication process.
+
+5.  **Variable Data Quality** -- The completeness and accuracy of metadata depend on OpenAlex's sources, which might result in missing abstracts, incorrect affiliations, or outdated records.
 
 ### References
 
