@@ -11,7 +11,8 @@ author:
     email: "t.rosenstock@cgiar.org"
     orcid: "0000-0002-1958-9500"
   - name: "Lolita Muller"
-    email: "l.muller@cgiar.org"
+    email: "m.lolita@cgiar.org"
+    orcid : "0009-0002-8345-7219"
 date: "`r Sys.Date()`"
 output:
   html_document:
