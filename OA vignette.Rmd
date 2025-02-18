@@ -45,7 +45,7 @@ This vignette provides a reproducible example of how to harness OpenAlex for gen
 
 3.  **Querying OpenAlex**: Demonstrate how to interact with the OpenAlex API to retrieve relevant references.
 
-4.  **Testing Results Against WoS and Scopus**
+4.  **Testing Results Against WoS**
 
 # Introduction to OpenAlex
 
@@ -262,7 +262,7 @@ if (nrow(oa_results) > 0) {
 }
 ```
 
-# Testing results against WoS and Scopus
+# Testing results against WoS
 
 ### **Description of the Matching Process**
 
