@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ---
 title: 'Using OpenAlex: A case for Agroecology in Latin America and the Caribbean'
 author:
