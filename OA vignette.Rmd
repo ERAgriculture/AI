@@ -39,13 +39,13 @@ knitr::opts_chunk$set(
 
 This vignette provides a reproducible example of how to harness OpenAlex for generating comprehensive search terms and evaluating the resulting references against established databases such as Web of Science (WoS) and Scopus. In this vignette, we will:
 
-1.  Introduce OpenAlex: Overview its features and explain its role in modern scholarly research.
+1.  **Introduce OpenAlex**: Overview its features and explain its role in modern scholarly research.
 
-2.  Generate Search Strings: Develop robust and reproducible search strategies tailored to your research needs.For this vingette, we will use the example of agroecology in Latin America and the Caribbean.
+2.  **Generate Search Strings**: Develop robust and reproducible search strategies tailored to your research needs.For this vingette, we will use the example of agroecology in Latin America and the Caribbean.
 
-3.  Querying OpenAlex: Demonstrate how to interact with the OpenAlex API to retrieve relevant references.
+3.  **Querying OpenAlex**: Demonstrate how to interact with the OpenAlex API to retrieve relevant references.
 
-4.  Testing Results Against WoS and Scopus
+4.  **Testing Results Against WoS and Scopus**
 
 # Introduction to OpenAlex
 
@@ -269,7 +269,7 @@ if (nrow(oa_results) > 0) {
 We conducted a comparison between **OpenAlex** and **Web of Science (WoS)** results to determine the overlap between the two databases. The process involved multiple steps, from constructing a search query to matching records based on unique identifiers (DOIs). Below is an outline of our approach:
 
 | **Step**                                   | **Description**                                                                                                                                                                                       |
-|--------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|----------------|--------------------------------------------------------|
 | **1. Translating the Query to WoS Format** | The original search query was converted into a format compatible with Web of Science to retrieve relevant research articles. This was retrieved and downloaded from the Web of Science web interface. |
 | **2. Extracting DOIs**                     | From both datasets, the DOI (Digital Object Identifier) was extracted as a unique identifier for each record. This allowed us to perform exact matches between the two databases.                     |
 | **3. Standardizing DOIs**                  | To ensure consistency, DOIs were converted to lowercase, and unnecessary prefixes (e.g., [`https://doi.org/`](https://doi.org/)) were removed before performing the matching.                         |
