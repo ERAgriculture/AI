@@ -6,7 +6,6 @@ This repository contains AI-driven scripts designed to **automate meta-analysis 
 ✅ **Using OpenAlex API** – using the OpenAlex API to generate and query search terms 
 
 ✅ **Testing OpenAlex results** – testing  against WoS outputs   
-
 ✅ **Automated Paper Screening** – AI-powered filtering of relevant papers  
 ✅ **Tagging & Categorization** – Extract key metadata from abstracts  
 ✅ **Keyword Extraction** – Identify trends in agricultural and climate research  
