@@ -153,7 +153,7 @@ Common Boolean Operators:
 outcomes_bool <- paste0('"', outcomes_terms, '"', collapse = " OR ")
 practices_bool <- paste0('"', practices_terms, '"', collapse = " OR ")
 region_bool   <- paste0('"', region_terms, '"', collapse = " OR ")
-product_bool   <- paste0('"', region_terms, '"', collapse = " OR ")
+product_bool   <- paste0('"', product_terms, '"', collapse = " OR ")
 
 ```
 
@@ -242,10 +242,10 @@ fetch_all_hits <- function(start_url) {
 
 This starts downloading OpenAlex records and saves it in a data frame
 
-```{r fetching results,include=T,eval=F,echo=T}
+```{r fetching results,include=T,eval=T,echo=T}
 oa_results <- fetch_all_hits(final_url)
-message("Total records retrieved: ", nrow(results))
-
+message("Total records retrieved: ", nrow(oa_results))
+save(oa_results, file = "OA docs/oa_results.RData")
 ```
 
 **3.Saving the records in a CSV (optional step)**
@@ -269,7 +269,7 @@ if (nrow(oa_results) > 0) {
 We conducted a comparison between **OpenAlex** and **Web of Science (WoS)** results to determine the overlap between the two databases. The process involved multiple steps, from constructing a search query to matching records based on unique identifiers (DOIs). Below is an outline of our approach:
 
 | **Step**                                   | **Description**                                                                                                                                                                                       |
-|----------------|--------------------------------------------------------|
+|-------------------|-----------------------------------------------------|
 | **1. Translating the Query to WoS Format** | The original search query was converted into a format compatible with Web of Science to retrieve relevant research articles. This was retrieved and downloaded from the Web of Science web interface. |
 | **2. Extracting DOIs**                     | From both datasets, the DOI (Digital Object Identifier) was extracted as a unique identifier for each record. This allowed us to perform exact matches between the two databases.                     |
 | **3. Standardizing DOIs**                  | To ensure consistency, DOIs were converted to lowercase, and unnecessary prefixes (e.g., [`https://doi.org/`](https://doi.org/)) were removed before performing the matching.                         |
@@ -333,7 +333,7 @@ p <- ggplot() +
                  aes(x = relevance_score),
                  binwidth = 1,
                  fill = "seagreen", alpha = 0.7, position = "identity") +
-  coord_cartesian(xlim = c(0, 200), ylim = c(0,750)) +
+  coord_cartesian(xlim = c(0, 200), ylim = c(0,160)) +
   labs(title = "Distribution of Relevance Scores",
        subtitle = "OpenAlex Only (blue) vs. Matched in WoS (green)",
        x = "Relevance Score",
