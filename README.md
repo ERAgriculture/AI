@@ -20,6 +20,7 @@ This repository contains AI-driven scripts designed to **automate meta-analysis 
 
 - **🔗 AI Tagging Report**: [View Report](https://eragriculture.github.io/AI/docs/GPT_tagging.html)
 - **🔗 AI Screening Report**: [View Report](https://eragriculture.github.io/AI/docs/Screening_GPT.html)  
-- **🔗 Open Alex vignette**: [View Report](https://eragriculture.github.io/AI/docs/OA-vignette.html)  
+- **🔗 Open Alex vignette**: [View Report](https://eragriculture.github.io/AI/docs/OA-vignette.html)
+- **🔗 Web Scrapping for data extraction with make.com**: [View Report](https://eragriculture.github.io/AI/docs/GCA-web-scraping.html)  
   
 
