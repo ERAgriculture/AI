@@ -177,7 +177,7 @@ For variables like outcomes and practices, the extracted terms may vary across a
 
 # practices<- ERA_processed$practices_AI
 # # Create a Chat Object
-# Sys.setenv(OPENAI_API_KEY = "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")
+# Sys.setenv(OPENAI_API_KEY = "key")
 # 
 # chat <- chat_openai(model = "gpt-4o-mini")
 # 
@@ -225,7 +225,7 @@ For variables like outcomes and practices, the extracted terms may vary across a
 
 # outcomes<- ERA_processed$outcomes_AI
 # # Create a Chat Object
-# Sys.setenv(OPENAI_API_KEY = "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")
+# Sys.setenv(OPENAI_API_KEY = "key")
 # 
 # chat <- chat_openai(model = "gpt-4o-mini")
 # 
